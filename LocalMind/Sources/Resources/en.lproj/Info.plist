@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.2.0</string>
+	<key>CFBundleVersion</key>
+	<string>P1</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array/>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.localmind.LocalMind.quickChat</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>快速聊天</string>
+			<key>UIApplicationShortcutItemIconSymbolName</key>
+			<string>message.fill</string>
+		</dict>
+	</array>
+	<key>NSHealthShareUsageDescription</key>
+	<string>LocalMind需要访问你的健康数据来提供健康分析和建议</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>LocalMind需要写入健康数据来记录你的活动</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>LocalMind需要访问你的日历来管理日程和提醒</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>LocalMind需要访问提醒事项来帮你创建和管理提醒</string>
+	<key>NSHomeKitUsageDescription</key>
+	<string>LocalMind需要访问HomeKit来控制你的智能家居设备</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>LocalMind需要访问你的位置来提供基于位置的服务和自动化</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>LocalMind需要麦克风权限来进行语音输入和对话</string>
+</dict>
+</plist>

@@ -1,0 +1,75 @@
+name: LocalMind
+options:
+  bundleIdPrefix: com.localmind
+  deploymentTarget:
+    iOS: "17.0"
+    macOS: "14.0"
+  info:
+    path: Sources/Resources/en.lproj/Info.plist
+
+targets:
+  LocalMind:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.localmind.LocalMind
+      SWIFT_VERSION: "5.9"
+      TARGETED_DEVICE_FAMILY: "1,2"
+      ENABLE_HARDENED_RUNTIME: NO
+      CLANG_ENABLE_MODULES: YES
+      DEVELOPMENT_TEAM: Q6ATCULYQR
+      CODE_SIGN_STYLE: Automatic
+      PROVISIONING_PROFILE_SPECIFIER: ""
+      CODE_SIGN_IDENTITY: "Developer ID Application: bolin zhang (Q6ATCULYQR)"
+    dependencies:
+      - sdk: HealthKit.framework
+      - sdk: EventKit.framework
+      - sdk: HomeKit.framework
+      - sdk: CoreLocation.framework
+
+  LocalMindUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: LocalMind
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.localmind.LocalMindUITests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "5.9"
+        TEST_TARGET_NAME: LocalMind
+
+  LocalMindMac:
+    type: application
+    platform: macOS
+    sources:
+      - Sources
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.localmind.LocalMind.mac
+      SWIFT_VERSION: "5.9"
+      ENABLE_HARDENED_RUNTIME: YES
+      DEVELOPMENT_TEAM: Q6ATCULYQR
+      CODE_SIGN_STYLE: Automatic
+
+schemes:
+  LocalMind:
+    build:
+      targets:
+        LocalMind: all
+        LocalMindUITests: [test]
+    run:
+      target: LocalMind
+    test:
+      targets:
+        - LocalMindUITests
+
+  LocalMindMac:
+    build:
+      targets:
+        LocalMindMac: all
+    run:
+      target: LocalMindMac

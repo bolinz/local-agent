@@ -1,0 +1,117 @@
+[
+  {
+    "id": "get_started",
+    "title": "30秒上手LocalMind",
+    "description": "5分钟开始使用，零配置启动",
+    "steps": [
+      {
+        "screenshot": "tutorial_01_step1.png",
+        "annotation": "点击App图标，马上打开",
+        "explanation": "下载安装后，直接点击打开。无需注册，无需设置。"
+      },
+      {
+        "screenshot": "tutorial_01_step2.png",
+        "annotation": "自动检测你的设备，智能选择AI大脑",
+        "explanation": "我们会自动为你选好合适的AI大脑，不用你操心。"
+      },
+      {
+        "screenshot": "tutorial_01_step3.png",
+        "annotation": "选择你想用的场景",
+        "explanation": "点击你想用的功能，比如'省钱管家'或'带娃神器'。"
+      },
+      {
+        "screenshot": "tutorial_01_step4.png",
+        "annotation": "点击'开始使用'，直接进入",
+        "explanation": "不用任何设置，马上就能和AI聊天了。"
+      }
+    ]
+  },
+  {
+    "id": "set_reminder",
+    "title": "怎么让AI帮我设提醒",
+    "description": "3步设置提醒，再也不会忘记事",
+    "steps": [
+      {
+        "screenshot": "tutorial_02_step1.png",
+        "annotation": "在输入框输入：'明天下午3点提醒我开会'",
+        "explanation": "用日常说话的方式告诉AI你想做什么。"
+      },
+      {
+        "screenshot": "tutorial_02_step2.png",
+        "annotation": "点击'发送'按钮",
+        "explanation": "AI会自动识别你的意思，并创建提醒。"
+      },
+      {
+        "screenshot": "tutorial_02_step3.png",
+        "annotation": "看到'提醒已创建'的提示",
+        "explanation": "就这么简单！到时间AI会自动提醒你。"
+      }
+    ]
+  },
+  {
+    "id": "check_health",
+    "title": "查我的健康数据",
+    "description": "了解自己的睡眠、步数、心率",
+    "steps": [
+      {
+        "screenshot": "tutorial_03_step1.png",
+        "annotation": "点击场景选择，切换到'带娃神器'或'给爸妈用'",
+        "explanation": "不同场景会自动开启对应的功能权限。"
+      },
+      {
+        "screenshot": "tutorial_03_step2.png",
+        "annotation": "输入：'我的睡眠数据怎么样？'",
+        "explanation": "AI会通过健康App读取你的数据，只在本地处理。"
+      },
+      {
+        "screenshot": "tutorial_03_step3.png",
+        "annotation": "看到AI给你的健康分析和建议",
+        "explanation": "所有健康数据都不会离开你的设备，非常安全。"
+      }
+    ]
+  },
+  {
+    "id": "smart_home",
+    "title": "回家自动开灯",
+    "description": "设置智能家居场景，一句话搞定",
+    "steps": [
+      {
+        "screenshot": "tutorial_04_step1.png",
+        "annotation": "在输入框输入：'晚安模式'",
+        "explanation": "你可以说'回家模式'、'晚安模式'等场景词。"
+      },
+      {
+        "screenshot": "tutorial_04_step2.png",
+        "annotation": "AI会自动控制你的灯光、空调、门锁",
+        "explanation": "需要确保你的家支持HomeKit智能家居。"
+      },
+      {
+        "screenshot": "tutorial_04_step3.png",
+        "annotation": "看到'已完成晚安模式'的提示",
+        "explanation": "以后说这句话，AI就会自动帮你搞定一切。"
+      }
+    ]
+  },
+  {
+    "id": "photo_service",
+    "title": "拍照记账",
+    "description": "拍小票自动记账，告别糊涂账",
+    "steps": [
+      {
+        "screenshot": "tutorial_05_step1.png",
+        "annotation": "点击场景选择，选择'省钱管家'",
+        "explanation": "这个场景会自动开启相机和照片权限。"
+      },
+      {
+        "screenshot": "tutorial_05_step2.png",
+        "annotation": "拍一张小票照片，发送给AI",
+        "explanation": "AI会自动识别金额、商家、日期等信息。"
+      },
+      {
+        "screenshot": "tutorial_05_step3.png",
+        "annotation": "看到AI生成的记账记录和统计",
+        "explanation": "月底AI还会告诉你'这个月奶茶花了800块'呢！"
+      }
+    ]
+  }
+]

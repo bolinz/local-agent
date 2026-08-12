@@ -1,0 +1,152 @@
+/**
+ Localizable.strings - 小白用户版术语翻译（简体中文）
+ 
+ 将所有技术术语替换为小白能懂的日常用语
+ 这是LocalMind Agent OS v1.1（零配置+场景化引导）的核心语言文件
+ */
+
+"app_name" = "LocalMind 智能助手";
+
+// MARK: - 技术术语翻译（隐藏技术词）
+"tokens_per_second" = "AI回复速度";
+"workflow" = "自动任务";
+"agent" = "智能助手";
+"model" = "AI大脑";
+"temperature" = "创意程度";
+"top_p" = "词汇范围";
+"top_k" = "选择范围";
+"repetition_penalty" = "重复惩罚";
+"kv_cache" = "内存优化";
+"mlx_framework" = "";  // 完全不显示
+"quantization" = "";  // 完全不显示
+"context_window" = "记忆长度";
+"max_tokens" = "回复长度";
+
+// MARK: - 界面文字
+"chat_title" = "LocalMind";
+"input_placeholder" = "输入消息...";
+"send_button" = "发送";
+"stop_button" = "停止";
+"thinking" = "思考中...";
+"generating" = "生成中...";
+"speed_label" = "AI回复速度";
+"tokens_unit" = "字/秒";
+
+// MARK: - 场景选择
+"scenario_title" = "你想用它做什么？";
+"scenario_subtitle" = "选择场景后，我们会自动为你配置好一切";
+"scenario_money_manager" = "省钱管家";
+"scenario_money_desc" = "拍照记账、提醒还款、比价购物";
+"scenario_kid_helper" = "带娃神器";
+"scenario_kid_desc" = "拍照解题、编睡前故事、健康咨询";
+"scenario_senior_care" = "给爸妈用";
+"scenario_senior_desc" = "大字界面、语音操作、一键求助";
+"scenario_custom_chat" = "先随便聊聊";
+"scenario_custom_desc" = "自由聊天、随便问问";
+"start_using" = "开始使用";
+"configuring" = "正在为你配置...";
+"config_complete" = "配置完成！";
+
+// MARK: - 网络状态
+"local_mode" = "本地模式";
+"network_connected" = "网络已连接";
+"data_stays_local" = "数据绝不离开设备";
+"all_processing_local" = "所有处理在本地完成";
+"need_network_confirm" = "需要联网查询，是否允许？";
+"only_non_sensitive_sent" = "只发送非敏感内容";
+
+// MARK: - 一键求助
+"one_click_help" = "一键求助";
+"help_question_placeholder" = "输入你的问题...";
+"common_questions" = "常见问题";
+"basic_usage" = "基础使用";
+"chat_function" = "聊天功能";
+"tools" = "工具集成";
+"privacy" = "隐私安全";
+
+// MARK: - 小白FAQ（精简版）
+"faq_slow" = "AI回复很慢怎么办？";
+"faq_slow_answer" = "可以尝试：1.使用更小AI大脑 2.清理后台应用 3.关闭低电量模式";
+"faq_gibberish" = "AI开始说胡话怎么办？";
+"faq_gibberish_answer" = "可以：1.点击停止按钮 2.清除对话 3.降低创意程度到0.3-0.5";
+"faq_data_safe" = "我的数据会发送到云端吗？";
+"faq_data_safe_answer" = "❌ 不会。所有AI推理都在你的设备上完成，数据永不离开设备。";
+"faq_health_safe" = "健康数据是否安全？";
+"faq_health_safe_answer" = "✅ 完全安全。健康数据通过iOS读取，仅在你的设备上使用，绝不离开设备。";
+"faq_can_offline" = "可以完全离线使用吗？";
+"faq_can_offline_answer" = "✅ 可以。开启'完全离线模式'，或直接使用飞行模式。";
+
+// MARK: - 快捷输入
+"quick_input_health" = "查询我的健康数据";
+"quick_input_calendar" = "查看我的日程";
+"quick_input_reminder" = "设置提醒";
+"quick_input_home" = "控制智能家居";
+"quick_input_money" = "拍照记账";
+"quick_input_kid" = "拍照解题";
+"quick_input_senior" = "明天天气咋样";
+"quick_input_custom" = "帮我分析";
+
+// MARK: - 教程
+"tutorials" = "图文教程";
+"tutorial_get_started" = "30秒上手LocalMind";
+"tutorial_set_reminder" = "怎么让AI帮我设提醒";
+"tutorial_health" = "查我的健康数据";
+"tutorial_smart_home" = "回家自动开灯";
+"tutorial_photo_service" = "拍照记账";
+"next_step" = "下一步";
+"prev_step" = "上一步";
+"step_of" = "第 %d 步，共 %d 步";
+
+// MARK: - 设置
+"settings" = "设置";
+"model_settings" = "AI大脑设置";
+"privacy_settings" = "隐私设置";
+"advanced_options" = "高级选项（专家用）";
+"completely_offline" = "完全离线模式";
+"api_key_management" = "API密钥管理";
+
+// MARK: - 错误提示（小白语言）
+"error_model_too_large" = "你的设备内存不足，无法运行这个AI大脑。请选择更小的。";
+"error_download_failed" = "下载失败，请检查网络后重试。";
+"error_permission_denied" = "需要授权才能使用此功能，请在系统设置中开启。";
+"error_workflow_failed" = "自动任务执行失败，请查看运行历史。";
+"error_ai_not_responding" = "AI好像睡着了，请点击停止后重新发送。";
+
+// MARK: - 成功提示
+"success_model_loaded" = "AI大脑已准备好！";
+"success_workflow_created" = "自动任务已创建，将自动执行。";
+"success_reminder_set" = "提醒已设置！";
+"success_health_data_loaded" = "健康数据已加载。";
+"success_home_device_controlled" = "智能家居设备已控制。";
+
+// MARK: - 设备检测
+"detected_device" = "检测到你的设备：%@";
+"recommended_model" = "为你推荐：%@";
+"model_downloading" = "正在下载AI大脑，请稍候...";
+"model_loading" = "正在加载AI大脑...";
+"device_info" = "设备信息";
+
+// MARK: - 场景化功能
+"money_feature_photo_bill" = "拍照记账";
+"money_feature_compare_price" = "比价查询";
+"money_feature_repayment_reminder" = "还款提醒";
+"kid_feature_photo_homework" = "拍照解题";
+"kid_feature_bedtime_story" = "编睡前故事";
+"kid_feature_health_tips" = "健康建议";
+"senior_feature_large_text" = "大字版界面";
+"senior_feature_voice_op" = "语音操作";
+"senior_feature_one_help" = "一键求助";
+
+// MARK: - 新手引导
+"guide_welcome" = "欢迎使用LocalMind智能助手";
+"guide_zero_config" = "无需任何设置，马上就能用";
+"guide_auto_model" = "已为你自动选好AI大脑";
+"guide_click_start" = "点击'开始使用'即可";
+"guide_have_fun" = "开始体验吧！";
+
+// MARK: - 隐私承诺
+"privacy_promise" = "你的数据，你的设备，你的AI。";
+"privacy_detail_1" = "✅ 不需要注册账号";
+"privacy_detail_2" = "✅ 不需要连接网络";
+"privacy_detail_3" = "✅ 100% 离线运行";
+"privacy_detail_4" = "✅ 符合隐私法规标准";

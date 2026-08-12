@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# SwiftPM
+.build/
+.build/*.json
+.swiftpm/
+DerivedData/
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+LocalMind.xcodeproj/
+
+# App bundles
+*.app
+*.dSYM
+build/
