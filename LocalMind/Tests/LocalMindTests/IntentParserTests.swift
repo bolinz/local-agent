@@ -51,4 +51,46 @@ final class IntentParserTests: XCTestCase {
         XCTAssertEqual(IntentParser.extractHour(from: "15点"), 15)
         XCTAssertNil(IntentParser.extractHour(from: "没有时间"))
     }
+
+    // MARK: - 边界
+
+    func testParseEmptyInput() {
+        XCTAssertEqual(IntentParser.parse(""), .none)
+        XCTAssertEqual(IntentParser.parse("   "), .none)
+    }
+
+    func testParseEnglishInput() {
+        XCTAssertEqual(IntentParser.parse("hello world"), .none)
+        XCTAssertEqual(IntentParser.parse("remind me tomorrow"), .none)
+    }
+
+    func testParseWeekdayWithTime() {
+        let now = Date()
+        let intent = IntentParser.parse("周五下午5点提醒我交周报", now: now)
+        guard case .createReminder(let title, let date) = intent else {
+            return XCTFail("应为 createReminder")
+        }
+        XCTAssertEqual(title, "交周报")
+        XCTAssertEqual(Calendar.current.component(.hour, from: date ?? now), 17)
+        XCTAssertEqual(Calendar.current.component(.weekday, from: date ?? now), 6)
+    }
+
+    func testParseTonightWithoutHour() {
+        let now = Date()
+        let intent = IntentParser.parse("今晚提醒我睡觉", now: now)
+        guard case .createReminder(_, let date) = intent else {
+            return XCTFail("应为 createReminder")
+        }
+        XCTAssertEqual(Calendar.current.component(.hour, from: date ?? now), 20)
+    }
+
+    func testParseNotificationWithoutTimeIsNone() {
+        XCTAssertEqual(IntentParser.parse("通知我开会"), .none)
+    }
+
+    func testExtractTitleStripsNoise() {
+        XCTAssertEqual(IntentParser.extractTitle(from: "明天下午3点提醒我开会"), "开会")
+        XCTAssertEqual(IntentParser.extractTitle(from: "周三上午10点预约牙医"), "牙医")
+        XCTAssertEqual(IntentParser.extractTitle(from: "提醒我取快递"), "取快递")
+    }
 }

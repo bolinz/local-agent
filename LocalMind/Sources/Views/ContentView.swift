@@ -141,51 +141,48 @@ struct ChatView: View {
 }
 
 struct WorkflowListView: View {
-    @State private var workflows: [Workflow] = []
-    
-    private let engine = WorkflowEngine.shared
+    @StateObject private var engine = ObservableWorkflowEngine(engine: WorkflowEngine.shared)
     
     var body: some View {
         List {
             Section {
-                ForEach(workflows) { workflow in
+                ForEach(engine.workflows) { workflow in
                     WorkflowRow(workflow: workflow) { enabled in
-                        engine.toggleWorkflow(workflow, enabled: enabled)
-                        workflows = engine.loadWorkflows()
+                        engine.toggle(workflow, enabled: enabled)
                     }
                 }
                 .onDelete { indexSet in
                     for index in indexSet {
-                        engine.deleteWorkflow(workflows[index])
+                        engine.delete(engine.workflows[index])
                     }
-                    workflows = engine.loadWorkflows()
                 }
             }
             
             Section(header: Text("模板库")) {
                 NavigationLink("省钱管家") {
-                    TemplateDetailView(template: TemplateStore.sampleTemplates[0])
+                    TemplateDetailView(template: TemplateStore.sampleTemplates[0], engine: engine)
                 }
                 NavigationLink("带娃神器") {
-                    TemplateDetailView(template: TemplateStore.sampleTemplates[1])
+                    TemplateDetailView(template: TemplateStore.sampleTemplates[1], engine: engine)
                 }
                 NavigationLink("长辈关怀") {
-                    TemplateDetailView(template: TemplateStore.sampleTemplates[2])
+                    TemplateDetailView(template: TemplateStore.sampleTemplates[2], engine: engine)
                 }
             }
         }
+        .id(engine.workflows.map(\.id))
         .navigationTitle("工作流")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 NavigationLink {
-                    WorkflowLogsView(engine: ObservableWorkflowEngine(engine: engine))
+                    WorkflowLogsView(engine: engine)
                 } label: {
                     Image(systemName: "clock.arrow.circlepath")
                 }
             }
         }
         .onAppear {
-            workflows = engine.loadWorkflows()
+            engine.reload()
         }
     }
 }
@@ -199,6 +196,7 @@ struct SettingsView: View {
             Section(header: Text("Agent 配置")) {
                 TextField("System Prompt", text: $agentConfig.systemPrompt, axis: .vertical)
                     .lineLimit(3...6)
+                    .accessibilityIdentifier("systemPromptField")
                     .onChange(of: agentConfig) { _, newValue in
                         AgentConfigStore.shared.save(newValue)
                     }

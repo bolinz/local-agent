@@ -6,9 +6,17 @@ final class LocalMindUITests: XCTestCase {
         continueAfterFailure = false
     }
 
+    private func makeApp(reset: Bool = false) -> XCUIApplication {
+        let app = XCUIApplication()
+        if reset {
+            app.launchArguments = ["-resetData"]
+        }
+        return app
+    }
+
     @MainActor
     func testMainScreenRendersAndTabNavigationWorks() throws {
-        let app = XCUIApplication()
+        let app = makeApp(reset: true)
         app.launch()
 
         // 主界面三个 Tab 存在
@@ -37,7 +45,7 @@ final class LocalMindUITests: XCTestCase {
 
     @MainActor
     func testChatSendsMessageAndGetsReply() throws {
-        let app = XCUIApplication()
+        let app = makeApp(reset: true)
         app.launch()
 
         let input = app.textFields["输入消息..."]
@@ -49,5 +57,64 @@ final class LocalMindUITests: XCTestCase {
         // 等待 assistant 回复出现（验证收发闭环）
         let reply = app.staticTexts["我理解你的需求。作为你的本地 AI 助手，我会在设备上为你处理这些任务。数据不会离开你的设备。"]
         XCTAssertTrue(reply.waitForExistence(timeout: 10))
+    }
+
+    @MainActor
+    func testImportWorkflowTemplate() throws {
+        let app = makeApp(reset: true)
+        app.launch()
+
+        // 进入工作流页
+        app.tabBars.buttons["工作流"].tap()
+        XCTAssertTrue(app.staticTexts["模板库"].waitForExistence(timeout: 5))
+
+        // 滚动到模板库，进入"省钱管家"模板详情
+        app.swipeUp()
+        let moneyButton = app.buttons["省钱管家"]
+        XCTAssertTrue(moneyButton.waitForExistence(timeout: 5))
+        moneyButton.tap()
+        XCTAssertTrue(app.staticTexts["包含的工作流"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["每月还款提醒"].waitForExistence(timeout: 5))
+
+        // 导入
+        app.buttons["导入"].tap()
+
+        // 返回列表后滚回顶部，导入的工作流应出现在最上方
+        for _ in 0..<5 {
+            app.swipeDown()
+            usleep(200_000)
+        }
+        XCTAssertTrue(app.staticTexts["工作流"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["每月还款提醒"].waitForExistence(timeout: 5))
+    }
+
+    @MainActor
+    func testToggleWorkflowEnabled() throws {
+        let app = makeApp(reset: true)
+        app.launch()
+
+        app.tabBars.buttons["工作流"].tap()
+        XCTAssertTrue(app.staticTexts["每日晨报"].waitForExistence(timeout: 5))
+
+        // 找到并切换"每日晨报"的开关
+        let cell = app.cells.containing(.staticText, identifier: "每日晨报").firstMatch
+        XCTAssertTrue(cell.waitForExistence(timeout: 5))
+        cell.switches.firstMatch.tap()
+    }
+
+    @MainActor
+    func testSettingsScreenShowsAgentConfig() throws {
+        let app = makeApp(reset: true)
+        app.launch()
+
+        app.tabBars.buttons["设置"].tap()
+
+        // 设置页关键区块渲染（Agent 配置 / Skills）
+        XCTAssertTrue(app.staticTexts["Agent 配置"].waitForExistence(timeout: 5), "Agent 配置 未出现")
+        let skills = app.staticTexts["Skills"]
+        if !skills.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(skills.waitForExistence(timeout: 3), "Skills 未出现")
     }
 }

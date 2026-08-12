@@ -3,10 +3,12 @@ import Foundation
 class ChatService {
     static let shared = ChatService()
     
-    private let toolRegistry = ToolRegistry.shared
+    private let toolRegistry: ToolRegistry
     private var conversationHistory: [ChatMessage] = []
     
-    private init() {}
+    init(toolRegistry: ToolRegistry = ToolRegistry.shared) {
+        self.toolRegistry = toolRegistry
+    }
     
     func sendMessage(_ text: String) async throws -> ChatMessage {
         let userMessage = ChatMessage(
@@ -40,13 +42,17 @@ class ChatService {
     
     private func generateResponse(to input: String) async throws -> String {
         // 1. 优先识别"周期性自动化"意图 → WorkflowTool
-        if let workflowResponse = try await tryCreateWorkflow(from: input) {
+        if let workflowResponse = try? await tryCreateWorkflow(from: input) {
             return workflowResponse
         }
         
-        // 2. 尝试工具调用（Agent 的"手"）
-        if let response = try await tryExecuteTool(intent: IntentParser.parse(input)) {
-            return response
+        // 2. 尝试工具调用（Agent 的"手"）；失败返回友好提示而非中断对话
+        do {
+            if let response = try await tryExecuteTool(intent: IntentParser.parse(input)) {
+                return response
+            }
+        } catch {
+            return "抱歉，调用工具时出现问题：\(error.localizedDescription)"
         }
         
         // 3. 兜底：模拟本地模型回复
@@ -87,6 +93,7 @@ class ChatService {
         var text = input
         let patterns = [
             #"(每天早上|每天|每周一|每周日|每月|每)\s*"#,
+            #"(\d{1,2})\s*点"#,
             #"(帮我|请|帮我设置|提醒我)"#,
         ]
         for pattern in patterns {

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TemplateDetailView: View {
     let template: WorkflowTemplate
+    var engine: ObservableWorkflowEngine?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -39,12 +40,21 @@ struct TemplateDetailView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button("导入") {
                     for workflow in template.workflows {
-                        _ = WorkflowEngine.shared.createWorkflow(
-                            name: workflow.name,
-                            summary: workflow.summary,
-                            trigger: workflow.trigger,
-                            steps: workflow.steps
-                        )
+                        if let engine {
+                            engine.createWorkflow(
+                                name: workflow.name,
+                                summary: workflow.summary,
+                                trigger: workflow.trigger,
+                                steps: workflow.steps
+                            )
+                        } else {
+                            _ = WorkflowEngine.shared.createWorkflow(
+                                name: workflow.name,
+                                summary: workflow.summary,
+                                trigger: workflow.trigger,
+                                steps: workflow.steps
+                            )
+                        }
                     }
                     dismiss()
                 }
@@ -84,9 +94,29 @@ struct WorkflowLogsView: View {
 
 final class ObservableWorkflowEngine: ObservableObject {
     private let engine: WorkflowEngine
+    @Published var workflows: [Workflow] = []
 
     init(engine: WorkflowEngine) {
         self.engine = engine
+    }
+
+    func reload() {
+        workflows = engine.loadWorkflows()
+    }
+
+    func createWorkflow(name: String, summary: String, trigger: WorkflowTrigger, steps: [WorkflowStep]) {
+        _ = engine.createWorkflow(name: name, summary: summary, trigger: trigger, steps: steps)
+        reload()
+    }
+
+    func toggle(_ workflow: Workflow, enabled: Bool) {
+        engine.toggleWorkflow(workflow, enabled: enabled)
+        reload()
+    }
+
+    func delete(_ workflow: Workflow) {
+        engine.deleteWorkflow(workflow)
+        reload()
     }
 
     func allLogs() -> [WorkflowLog] {

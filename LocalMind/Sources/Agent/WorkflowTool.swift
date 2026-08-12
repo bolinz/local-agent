@@ -30,7 +30,7 @@ class WorkflowTool: Tool {
         return "已创建自动任务「\(workflow.name)」：\(workflow.summary)。可在「工作流」页查看/修改。"
     }
 
-    private func parseTrigger(_ raw: String?) -> WorkflowTrigger {
+    func parseTrigger(_ raw: String?) -> WorkflowTrigger {
         guard let raw = raw, !raw.isEmpty else { return .manual }
         if raw.hasPrefix("cron:") {
             return .time(String(raw.dropFirst(5)))
@@ -41,7 +41,7 @@ class WorkflowTool: Tool {
         return .manual
     }
 
-    private func parseSteps(_ raw: String?) -> [WorkflowStep] {
+    func parseSteps(_ raw: String?) -> [WorkflowStep] {
         guard let raw = raw, !raw.isEmpty else { return [] }
         // 格式："toolID:参数=值,参数=值;toolID2:..."
         let parts = raw.components(separatedBy: ";")
