@@ -2,6 +2,7 @@
 
 - 日期：2026-08-13
 - 影响：`xcodebuild test` 运行完整 UI 测试套件时无限挂起（数小时无响应）
+- 状态：**已解决（规避方案验证通过）**
 
 ## 症状
 
@@ -25,7 +26,18 @@
 
 ## 解决方案
 
-### 规避（已验证有效）：使用 iOS 26.4 运行时跑 UI 测试
+### 推荐：使用 `run-uitests.sh` 运行器（已封装规避 + 超时保护）
+
+```bash
+cd LocalMind
+./run-uitests.sh              # 完整 UI 套件（自动用 iOS 26.4 设备）
+./run-uitests.sh <用例名>     # 只跑指定用例
+./run-uitests.sh --list       # 列出用例
+```
+
+脚本行为：自动 `xcodegen generate` → `build-for-testing` → 用 iOS 26.4 设备跑测试，外层有 8 分钟超时防挂死。
+
+### 手动规避：使用 iOS 26.4 运行时跑 UI 测试（已验证有效）
 
 ```bash
 xcodebuild -project LocalMind.xcodeproj -scheme LocalMind \
@@ -45,6 +57,12 @@ xcodebuild -project LocalMind.xcodeproj -scheme LocalMind \
 - 每个用例加 `-only-testing` 单独跑（已用，可工作但慢）
 - 给 xcodebuild 外层加 `timeout` 命令防挂死
 - 官方修复需等 Apple 更新 Xcode/CoreSimulator（这是模拟器系统 bug）
+
+## 复现与验证记录
+
+- 26.5 完整套件：多次挂死（数十次 backboardd 崩溃），单用例可通过
+- 26.4 完整套件：5 用例全过，backboardd 崩溃数 before=25 / after=25（零新增）
+- 规避方案在 2026-08-13 复测通过，`run-uitests.sh` 已作为项目标准 UI 测试入口
 
 ## 相关已知问题
 

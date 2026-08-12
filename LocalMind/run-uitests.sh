@@ -22,9 +22,8 @@ xcodebuild -project LocalMind.xcodeproj -scheme LocalMind \
   -derivedDataPath build build-for-testing 2>&1 | tail -1
 
 if [ "${1:-}" = "--list" ]; then
-  xcodebuild -project LocalMind.xcodeproj -scheme LocalMind \
-    -destination "platform=iOS Simulator,id=$DEVICE_ID" \
-    -derivedDataPath build test-without-building -list 2>&1 | grep "test" | head
+  echo "可用 UI 测试用例:"
+  grep -oE "func test[A-Za-z0-9]+" UITests/LocalMindUITests.swift | sed 's/func //'
   exit 0
 fi
 
