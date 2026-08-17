@@ -19,13 +19,14 @@ class ChatService {
         )
         conversationHistory.append(userMessage)
         
-        let responseText = try await generateResponse(to: text)
+        let (responseText, toolName) = await generateResponse(to: text)
         
         let assistantMessage = ChatMessage(
             id: UUID(),
             role: .assistant,
             content: responseText,
-            timestamp: Date()
+            timestamp: Date(),
+            toolName: toolName
         )
         conversationHistory.append(assistantMessage)
         
@@ -40,30 +41,29 @@ class ChatService {
         return conversationHistory
     }
     
-    private func generateResponse(to input: String) async throws -> String {
+    private func generateResponse(to input: String) async -> (String, String?) {
         // 1. 优先识别"周期性自动化"意图 → WorkflowTool
         if let workflowResponse = try? await tryCreateWorkflow(from: input) {
-            return workflowResponse
+            return (workflowResponse, "自动任务")
         }
         
         // 2. 尝试工具调用（Agent 的"手"）；失败返回友好提示而非中断对话
         do {
             if let response = try await tryExecuteTool(intent: IntentParser.parse(input)) {
-                return response
+                let toolName = IntentParser.parse(input).toolID ?? "工具"
+                return (response, toolName)
             }
         } catch {
-            return "抱歉，调用工具时出现问题：\(error.localizedDescription)"
+            return ("抱歉，调用工具时出现问题：\(error.localizedDescription)", nil)
         }
         
         // 3. 兜底：模拟本地模型回复
-        try await Task.sleep(nanoseconds: 500_000_000)
-        
         if input.contains("健康") || input.contains("睡眠") {
-            return "✅ 已为你查询健康数据：\n- 今日步数：8,432步\n- 平均心率：72次/分钟\n- 昨晚睡眠：6.2小时"
+            return ("✅ 已为你查询健康数据：\n- 今日步数：8,432步\n- 平均心率：72次/分钟\n- 昨晚睡眠：6.2小时", nil)
         } else if input.contains("天气") {
-            return "🌤 北京今天晴转多云，气温15-28°C，适合外出活动。"
+            return ("🌤 北京今天晴转多云，气温15-28°C，适合外出活动。", nil)
         } else {
-            return "我理解你的需求。作为你的本地 AI 助手，我会在设备上为你处理这些任务。数据不会离开你的设备。"
+            return ("我理解你的需求。作为你的本地 AI 助手，我会在设备上为你处理这些任务。数据不会离开你的设备。", nil)
         }
     }
     
