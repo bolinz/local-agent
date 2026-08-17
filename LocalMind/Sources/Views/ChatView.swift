@@ -13,7 +13,7 @@ struct ChatView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 8) {
                 Button {
                     showSessions = true
                 } label: {
@@ -28,6 +28,18 @@ struct ChatView: View {
                         showSessions = false
                     }
                 }
+
+                Button(action: startNewSession) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: 26, height: 26)
+                        .background(
+                            Circle().fill(LinearGradient(colors: [.indigo, .purple],
+                                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+                        )
+                }
+                .accessibilityLabel("新建会话")
 
                 Spacer()
 
@@ -93,39 +105,6 @@ struct ChatView: View {
         #if canImport(UIKit)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .toolbar {
-            #if canImport(UIKit)
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    if let sessionID = currentSessionID {
-                        sessionStore.delete(sessionID)
-                    }
-                    messages.removeAll()
-                    chatService.clearHistory()
-                    currentSessionID = nil
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .accessibilityLabel("清空对话")
-                }
-            }
-            #else
-            ToolbarItem(placement: .automatic) {
-                Button {
-                    if let sessionID = currentSessionID {
-                        sessionStore.delete(sessionID)
-                    }
-                    messages.removeAll()
-                    chatService.clearHistory()
-                    currentSessionID = nil
-                } label: {
-                    Image(systemName: "trash")
-                        .foregroundColor(.secondary)
-                }
-            }
-            #endif
-        }
         .onAppear {
             if messages.isEmpty {
                 messages = chatService.getHistory()
@@ -232,6 +211,12 @@ struct ChatView: View {
             isGenerating = false
             persistSession()
         }
+    }
+
+    private func startNewSession() {
+        messages = []
+        currentSessionID = nil
+        isGenerating = false
     }
 
     private func persistSession() {
