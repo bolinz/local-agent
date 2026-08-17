@@ -43,23 +43,25 @@ model: xiaomi-token-plan-cn/mimo-v2.5
 
 ## 主 agent 调度保证（关键需求）
 
-主模型 `deepseek-v4-flash` 确认 `attachment: false`（不支持图片输入）。必须保证主 agent 在遇到读图需求时主动调度 `image-reader`。采用双保险：
+主模型可能读图、也可能不读图（取决于主 agent 当前所用模型：如 `deepseek-v4-flash` 为 `attachment: false`，而 `deepseek-chat`/`deepseek-reasoner` 为 `attachment: true`）。规则必须**以主 agent 当前实际能否看到图片为准**，不能写死某模型。采用双保险：
 
 ### 1. 靠 description 自动触发（软机制）
 
 opencode 会把所有可用 subagent 的 `description` 注入主 agent 的系统上下文。主 agent 通过 `task` 工具以 `subagent_type` 调度 subagent。`image-reader` 的 description 前载触发词（image / screenshot / 截图 / 读图 / OCR / 图表），让主 agent 在视觉任务时自主选择调度。
 
-### 2. 全局 AGENTS.md 硬规则（硬机制，确保）
+### 2. 全局 AGENTS.md 条件规则（硬机制，确保）
 
-在 `~/.config/opencode/AGENTS.md`（当前不存在，新建；作用于所有会话）加入强制规则：
+在 `~/.config/opencode/AGENTS.md`（当前不存在，新建；作用于所有会话）加入条件规则：
 
 ```markdown
-# 读图调度规则（硬性）
+# 读图调度规则
 
-- 当前主模型（deepseek 系列）不支持图片输入，无法直接查看图片/截图。
-- 当用户附加图片、提供图片/截图路径，或任务涉及 OCR、UI 截图分析、图表/视觉理解时，
-  必须通过 `task` 工具调度 `image-reader` subagent（subagent_type: "image-reader"）。
-- 将 `image-reader` 的返回作为读图结论直接转发给用户，不得自己声称"看到了图片"。
+- 当任务涉及图片/截图/OCR/视觉理解时，先自检：你的当前模型能否真正看到并理解图片内容？
+  - 能 → 直接处理。
+  - 不能（图片以附件形式传入但你无法解析其内容，或用户提供了图片路径但你无法查看）→
+    必须通过 `task` 工具调度 `image-reader` subagent（subagent_type: "image-reader"），
+    将图片路径/附件与用户问题交给它，并把其返回作为读图结论转发给用户。
+- 不得声称"看到了图片"除非你真的能解析图片内容。
 ```
 
 ### 注意
@@ -80,4 +82,4 @@ opencode 会把所有可用 subagent 的 `description` 注入主 agent 的系统
 2. 确认全局规则写入 `~/.config/opencode/AGENTS.md`
 3. 重启 opencode 后，`@image-reader` 可被调度
 4. 用带图片的任务验证（如 `@image-reader 分析 <截图路径>`）
-5. 验证主 agent 自动调度：直接给主 agent 一个图片路径任务（不显式 @），确认其通过 task 工具调度 image-reader 并转发结果
+5. 验证主 agent 自动调度：用 `attachment: false` 的模型（如 deepseek-v4-flash）给一个图片路径任务（不显式 @），确认其通过 task 工具调度 image-reader 并转发结果；再用 `attachment: true` 的模型（如 deepseek-chat）重复，确认其直接处理、不冗余调度 image-reader
