@@ -10,32 +10,87 @@ struct MainView: View {
     @State private var selectedTab = 0
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            NavigationStack {
-                ChatView()
+        VStack(spacing: 0) {
+            TabView(selection: $selectedTab) {
+                NavigationStack {
+                    ChatView()
+                }
+                .tag(0)
+                
+                NavigationStack {
+                    WorkflowListView()
+                }
+                .tag(1)
+                
+                NavigationStack {
+                    SettingsView()
+                }
+                .tag(2)
             }
-            .tabItem {
-                Label("对话", systemImage: "message.fill")
-            }
-            .tag(0)
+            #if canImport(UIKit)
+            .toolbar(.hidden, for: .tabBar)
+            #endif
             
-            NavigationStack {
-                WorkflowListView()
-            }
-            .tabItem {
-                Label("工作流", systemImage: "flowchart")
-            }
-            .tag(1)
-            
-            NavigationStack {
-                SettingsView()
-            }
-            .tabItem {
-                Label("设置", systemImage: "gearshape.fill")
-            }
-            .tag(2)
+            CustomTabBar(selected: $selectedTab)
         }
-        .tint(.accentColor)
+    }
+}
+
+private struct TabItem: Identifiable {
+    let id: Int
+    let title: String
+    let icon: String
+}
+
+private let tabItems: [TabItem] = [
+    TabItem(id: 0, title: "对话", icon: "message.fill"),
+    TabItem(id: 1, title: "工作流", icon: "flowchart.fill"),
+    TabItem(id: 2, title: "设置", icon: "gearshape.fill"),
+]
+
+struct CustomTabBar: View {
+    @Binding var selected: Int
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(tabItems) { item in
+                let isSelected = selected == item.id
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selected = item.id
+                    }
+                } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: item.icon)
+                            .font(.system(size: 18, weight: .semibold))
+                        Text(item.title)
+                            .font(.caption2)
+                            .fontWeight(isSelected ? .semibold : .regular)
+                    }
+                    .foregroundColor(isSelected ? .white : .secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(isSelected
+                                  ? AnyShapeStyle(LinearGradient(
+                                        colors: [.indigo, .purple],
+                                        startPoint: .topLeading, endPoint: .bottomTrailing))
+                                  : AnyShapeStyle(Color.secondary.opacity(0.08)))
+                    )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(item.title)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.top, 8)
+        .padding(.bottom, 4)
+        .background(.bar)
+        .overlay(alignment: .top) {
+            Divider()
+        }
     }
 }
 
