@@ -13,7 +13,7 @@ struct ModelRouter {
 
     func testConnection(_ provider: ModelProvider) async -> Bool {
         guard !provider.baseURL.isEmpty, !provider.apiKey.isEmpty else { return false }
-        let url = URL(string: "\(provider.baseURL)/models")!
+        guard let url = URL(string: "\(provider.baseURL)/models") else { return false }
         var request = URLRequest(url: url)
         request.timeoutInterval = 10
         request.setValue("Bearer \(provider.apiKey)", forHTTPHeaderField: "Authorization")
