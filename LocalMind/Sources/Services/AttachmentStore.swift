@@ -13,9 +13,17 @@ class AttachmentStore {
 
     /// 返回相对路径（存于 ChatMessage.localURL），用于后续读取
     func save(data: Data, name: String) -> String {
-        let url = attachmentsDir.appendingPathComponent(name)
+        let safeName = sanitize(name)
+        let uniqueName = "\(UUID().uuidString.prefix(8))_\(safeName)"
+        let url = attachmentsDir.appendingPathComponent(uniqueName)
         try? data.write(to: url)
-        return "Attachments/\(name)"
+        return "Attachments/\(uniqueName)"
+    }
+
+    private func sanitize(_ name: String) -> String {
+        let invalid = CharacterSet(charactersIn: "/\\:?%*|\"<>")
+        let safe = name.components(separatedBy: invalid).joined(separator: "_")
+        return safe.isEmpty ? "file" : safe
     }
 
     func fileURL(for relative: String) -> URL? {
