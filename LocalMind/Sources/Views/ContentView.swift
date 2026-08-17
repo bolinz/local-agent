@@ -11,25 +11,20 @@ struct MainView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            TabView(selection: $selectedTab) {
-                NavigationStack {
-                    ChatView()
+            ZStack {
+                switch selectedTab {
+                case 0:
+                    NavigationStack { ChatView() }
+                        .transition(.opacity)
+                case 1:
+                    NavigationStack { WorkflowListView() }
+                        .transition(.opacity)
+                default:
+                    NavigationStack { SettingsView() }
+                        .transition(.opacity)
                 }
-                .tag(0)
-                
-                NavigationStack {
-                    WorkflowListView()
-                }
-                .tag(1)
-                
-                NavigationStack {
-                    SettingsView()
-                }
-                .tag(2)
             }
-            #if canImport(UIKit)
-            .toolbar(.hidden, for: .tabBar)
-            #endif
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             CustomTabBar(selected: $selectedTab)
         }
