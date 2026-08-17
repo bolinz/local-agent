@@ -94,6 +94,7 @@ struct QuickInputBar: View {
         .onChange(of: selectedPhoto) { _, newItem in
             guard let newItem else { return }
             loadPhoto(newItem)
+            selectedPhoto = nil
         }
         #endif
     }

@@ -30,6 +30,7 @@ struct AgentModelSwitcher: View {
             .sheet(isPresented: $showAgentPicker) {
                 AgentPickerSheet(agents: agents, selectedID: agentID) { id in
                     agentID = id
+                    AgentStore.shared.setCurrent(id)
                     let agent = agents.first { $0.id == id }
                     modelSelection = agent?.selectedModel
                 }
