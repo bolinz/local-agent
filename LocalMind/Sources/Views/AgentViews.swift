@@ -251,23 +251,52 @@ struct SkillsView: View {
     var body: some View {
         List {
             ForEach(skills) { skill in
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(skill.name).font(.subheadline).fontWeight(.medium)
-                        Text(skill.summary).font(.caption).foregroundColor(.secondary)
-                    }
-                    Spacer()
-                    Toggle("", isOn: Binding(
-                        get: { skill.enabled },
-                        set: { enabled in
-                            SkillStore.shared.toggle(skill, enabled: enabled)
-                            skills = SkillStore.shared.loadSkills()
+                NavigationLink {
+                    SkillDetailView(skill: skill)
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(skill.name).font(.subheadline).fontWeight(.medium)
+                            Text(skill.summary).font(.caption).foregroundColor(.secondary)
                         }
-                    )).labelsHidden()
+                        Spacer()
+                        Toggle("", isOn: Binding(
+                            get: { skill.enabled },
+                            set: { enabled in
+                                SkillStore.shared.toggle(skill, enabled: enabled)
+                                skills = SkillStore.shared.loadSkills()
+                            }
+                        )).labelsHidden()
+                    }
                 }
             }
         }
         .navigationTitle("Skills")
+    }
+}
+
+struct SkillDetailView: View {
+    let skill: AgentSkill
+    var body: some View {
+        Form {
+            Section("简介") {
+                Text(skill.summary)
+            }
+            Section("指令内容") {
+                Text(skill.instructions)
+            }
+            Section("所需工具") {
+                if skill.requiredTools.isEmpty {
+                    Text("无")
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(skill.requiredTools, id: \.self) { tool in
+                        Text(tool)
+                    }
+                }
+            }
+        }
+        .navigationTitle(skill.name)
     }
 }
 
