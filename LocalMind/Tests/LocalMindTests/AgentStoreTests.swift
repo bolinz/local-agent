@@ -12,13 +12,15 @@ final class AgentStoreTests: XCTestCase {
             dataPolicy: .strictLocal,
             selectedModel: nil,
             enabledTools: ["calendar", "reminder"],
-            isCurrent: true
+            isCurrent: true,
+            temperature: 0.9
         )
         let data = try JSONEncoder().encode(profile)
         let decoded = try JSONDecoder().decode(AgentProfile.self, from: data)
         XCTAssertEqual(decoded.name, "健康管家")
         XCTAssertEqual(decoded.dataPolicy, .strictLocal)
         XCTAssertEqual(decoded.enabledTools, ["calendar", "reminder"])
+        XCTAssertEqual(decoded.temperature, 0.9)
     }
 
     func testAgentProfileDecodesOldJSONWithoutTemperature() throws {
