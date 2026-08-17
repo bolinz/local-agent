@@ -15,11 +15,8 @@ cd "$(dirname "$0")"
 # iOS 26.4 设备（规避 26.5 backboardd 崩溃）
 DEVICE_ID="090FADD8-5127-407F-9638-30C134BD3BA5"
 
-# 先构建，避免测试阶段长编译干扰
+# 生成工程文件
 xcodegen generate >/dev/null
-xcodebuild -project LocalMind.xcodeproj -scheme LocalMind \
-  -destination "platform=iOS Simulator,id=$DEVICE_ID" \
-  -derivedDataPath build build-for-testing 2>&1 | tail -1
 
 if [ "${1:-}" = "--list" ]; then
   echo "可用 UI 测试用例:"
@@ -32,12 +29,11 @@ if [ -n "${1:-}" ]; then
   ONLY="-only-testing:LocalMindUITests/LocalMindUITests/$1"
 fi
 
-# 用 timeout 包裹防止无限挂死（8 分钟上限）
-# 注意: macOS 无 GNU timeout，用后台 + 轮询实现
+# 跑测试（包含构建），用后台 + 超时保护防挂死
 (
-  xcodebuild -project LocalMind.xcodeproj -scheme LocalMind \
+  xcodebuild test -project LocalMind.xcodeproj -scheme LocalMind \
     -destination "platform=iOS Simulator,id=$DEVICE_ID" \
-    -derivedDataPath build test-without-building $ONLY 2>&1 \
+    -derivedDataPath build $ONLY 2>&1 \
     | grep -E "Test Case.*LocalMindUITests.*(passed|failed)|Test Suite 'LocalMindUITests' (passed|failed)"
 ) &
 PID=$!

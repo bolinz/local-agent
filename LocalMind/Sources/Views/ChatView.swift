@@ -89,6 +89,9 @@ struct ChatView: View {
             #if canImport(UIKit)
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
+                    if let sessionID = currentSessionID {
+                        sessionStore.delete(sessionID)
+                    }
                     messages.removeAll()
                     chatService.clearHistory()
                     currentSessionID = nil
@@ -102,6 +105,9 @@ struct ChatView: View {
             #else
             ToolbarItem(placement: .automatic) {
                 Button {
+                    if let sessionID = currentSessionID {
+                        sessionStore.delete(sessionID)
+                    }
                     messages.removeAll()
                     chatService.clearHistory()
                     currentSessionID = nil
