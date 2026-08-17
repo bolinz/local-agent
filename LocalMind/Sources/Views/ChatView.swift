@@ -91,9 +91,22 @@ struct ChatView: View {
                 Button {
                     messages.removeAll()
                     chatService.clearHistory()
+                    currentSessionID = nil
                 } label: {
                     Image(systemName: "trash")
                         .font(.caption)
+                        .foregroundColor(.secondary)
+                        .accessibilityLabel("清空对话")
+                }
+            }
+            #else
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    messages.removeAll()
+                    chatService.clearHistory()
+                    currentSessionID = nil
+                } label: {
+                    Image(systemName: "trash")
                         .foregroundColor(.secondary)
                 }
             }
@@ -155,7 +168,9 @@ struct ChatView: View {
     private func assistantBubble(_ message: ChatMessage) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             if let toolName = message.toolName {
-                ToolCallCardView(toolName: toolName, params: message.content, result: "完成", isSuccess: true)
+                ToolCallCardView(toolName: toolName,
+                                 params: String(message.content.prefix(40)) + (message.content.count > 40 ? "…" : ""),
+                                 result: "完成", isSuccess: true)
             }
             Text(message.content)
                 .font(.body)
@@ -175,7 +190,8 @@ struct ChatView: View {
     }
 
     private func memoryItems() -> [String] {
-        messages.filter { $0.role == .assistant && $0.toolName == "自动任务" }.map { _ in "正在跟踪 1 个自动任务" }
+        let count = messages.filter { $0.role == .assistant && $0.toolName == "自动任务" }.count
+        return count > 0 ? ["正在跟踪 \(count) 个自动任务"] : []
     }
 
     private func sendMessage() {
