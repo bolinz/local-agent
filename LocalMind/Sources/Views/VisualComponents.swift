@@ -21,6 +21,7 @@ struct GradientIconView: View {
             Image(systemName: icon)
                 .font(.system(size: size * 0.42, weight: .medium))
                 .foregroundColor(.white)
+                .accessibilityHidden(true)
         }
         .frame(width: size, height: size)
     }
@@ -45,6 +46,8 @@ struct GlowPillView: View {
         .padding(.vertical, 4)
         .background(Capsule().fill(Color.green.opacity(isActive ? 0.12 : 0)))
         .foregroundColor(isActive ? Color.green : Color.secondary)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(text)
     }
 }
 
@@ -74,6 +77,8 @@ struct ThinkingCardView: View {
                             .font(.system(size: 9, weight: .bold))
                             .foregroundColor(step.state.foregroundColor)
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(step.state.accessibilityText)
                     Text(step.label)
                         .font(.caption)
                         .foregroundColor(step.state == .active ? .primary : .secondary)
@@ -117,6 +122,13 @@ struct ThinkingStep: Identifiable, Equatable {
             case .pending: return .clear
             }
         }
+        var accessibilityText: String {
+            switch self {
+            case .done: return "完成"
+            case .active: return "进行中"
+            case .pending: return "等待中"
+            }
+        }
     }
 }
 
@@ -151,6 +163,7 @@ struct ToolCallCardView: View {
             Label(result, systemImage: isSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
                 .font(.caption2)
                 .foregroundColor(isSuccess ? .green : .red)
+                .accessibilityLabel("\(result)，\(isSuccess ? "成功" : "失败")")
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
