@@ -41,45 +41,34 @@ model: xiaomi-token-plan-cn/mimo-v2.5
 - 若用户无明确问题，给出客观描述而非猜测；不确定的地方明确说明
 - 无图片时明确提示缺少图片输入
 
-## 主 agent 调度保证（关键需求）
+## 主 agent 如何调用 image-reader
 
-主模型可能读图、也可能不读图（取决于主 agent 当前所用模型：如 `deepseek-v4-flash` 为 `attachment: false`，而 `deepseek-chat`/`deepseek-reasoner` 为 `attachment: true`）。规则必须**以主 agent 当前实际能否看到图片为准**，不能写死某模型。采用双保险：
+主模型可能读图、也可能不读图（取决于主 agent 当前所用模型：如 `deepseek-v4-flash` 为 `attachment: false`，而 `deepseek-chat`/`deepseek-reasoner` 为 `attachment: true`）。**不引入任何硬规则**，采用 opencode 原生 subagent 软机制：
 
-### 1. 靠 description 自动触发（软机制）
+- opencode 会把所有可用 subagent 的 `description` 注入主 agent 的系统上下文。主 agent 通过 `task` 工具以 `subagent_type` 调度 subagent（与调度 `ios-builder` 同理）。
+- `image-reader` 的 description 前载触发词（image / screenshot / 截图 / 读图 / OCR / 图表 / visual understanding），让主 agent 在需要视觉理解时自主选择调度。
+- 主 agent 能直接处理图片时（attachment: true 模型）自行处理；不能时通过 task 工具调度 image-reader 并把其返回转发给用户。
+- **不保证 100% 触发**（模型可能忘了调度）——这是 opencode subagent 的标准行为，与 ios-builder 一致。需要保险时用户可显式 `@image-reader 分析 <路径>`。
 
-opencode 会把所有可用 subagent 的 `description` 注入主 agent 的系统上下文。主 agent 通过 `task` 工具以 `subagent_type` 调度 subagent。`image-reader` 的 description 前载触发词（image / screenshot / 截图 / 读图 / OCR / 图表），让主 agent 在视觉任务时自主选择调度。
+### 为什么不加硬规则
 
-### 2. 全局 AGENTS.md 条件规则（硬机制，确保）
+曾设计过"全局 AGENTS.md 强制调度规则"，评估后放弃，风险过大：
 
-在 `~/.config/opencode/AGENTS.md`（当前不存在，新建；作用于所有会话）加入条件规则：
-
-```markdown
-# 读图调度规则
-
-- 当任务涉及图片/截图/OCR/视觉理解时，先自检：你的当前模型能否真正看到并理解图片内容？
-  - 能 → 直接处理。
-  - 不能（图片以附件形式传入但你无法解析其内容，或用户提供了图片路径但你无法查看）→
-    必须通过 `task` 工具调度 `image-reader` subagent（subagent_type: "image-reader"），
-    将图片路径/附件与用户问题交给它，并把其返回作为读图结论转发给用户。
-- 不得声称"看到了图片"除非你真的能解析图片内容。
-```
-
-### 注意
-
-- 修改全局 `~/.config/opencode/AGENTS.md` 会影响**所有 opencode 项目**（全局规则语义）。因为 image-reader 是全局 agent，该保证也随之全局生效，符合预期。
-- 若用户只想对当前项目生效，则把上述规则写入项目根 `AGENTS.md` 代替。
+- **影响面太大**：全局规则作用于所有项目/会话，措辞不当即污染所有主 agent 行为
+- **误判风险**：靠"自检能否看到图片"依赖模型主观判断，能读图的模型可能被强制转发、不能读图的却漏调
+- **不必要的开销**：强制调度额外消耗 token/延迟
+- **难以回滚**：关键能力绑定在一条全局规则上，后续改动风险高
 
 ## 不做的事
 
-- 不改主 agent / 其他 agent（除新增全局 AGENTS.md 规则）
-- 不改 `opencode.json` / 不新增 provider
+- 不改主 agent / 其他 agent
+- 不改 `opencode.json` / 不新增 provider / 不新增全局 AGENTS.md
 - 不写业务代码、不接 MCP
 - 不动 LocalMind App
 
 ## 验证方式
 
 1. 确认文件位于 `~/.config/opencode/agent/image-reader.md`
-2. 确认全局规则写入 `~/.config/opencode/AGENTS.md`
-3. 重启 opencode 后，`@image-reader` 可被调度
-4. 用带图片的任务验证（如 `@image-reader 分析 <截图路径>`）
-5. 验证主 agent 自动调度：用 `attachment: false` 的模型（如 deepseek-v4-flash）给一个图片路径任务（不显式 @），确认其通过 task 工具调度 image-reader 并转发结果；再用 `attachment: true` 的模型（如 deepseek-chat）重复，确认其直接处理、不冗余调度 image-reader
+2. 重启 opencode 后，`@image-reader` 可被调度
+3. 用带图片的任务验证（如 `@image-reader 分析 <截图路径>`）
+4. 验证主 agent 自动调度：用 `attachment: false` 的模型（如 deepseek-v4-flash）给一个图片路径任务（不显式 @），观察其是否通过 task 工具调度 image-reader 并转发结果；用 `attachment: true` 的模型（如 deepseek-chat）重复，观察其是否直接处理
