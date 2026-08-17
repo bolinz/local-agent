@@ -52,31 +52,30 @@ struct CustomTabBar: View {
     @Binding var selected: Int
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 6) {
             ForEach(tabItems) { item in
                 let isSelected = selected == item.id
                 Button {
-                    withAnimation(.easeInOut(duration: 0.2)) {
+                    withAnimation(.spring(duration: 0.3)) {
                         selected = item.id
                     }
                 } label: {
-                    VStack(spacing: 4) {
+                    HStack(spacing: 5) {
                         Image(systemName: item.icon)
-                            .font(.system(size: 18, weight: .semibold))
-                        Text(item.title)
-                            .font(.caption2)
-                            .fontWeight(isSelected ? .semibold : .regular)
+                            .font(.system(size: 15, weight: isSelected ? .semibold : .regular))
+                            .symbolRenderingMode(isSelected ? .hierarchical : .monochrome)
+                        if isSelected {
+                            Text(item.title)
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
                     }
-                    .foregroundColor(isSelected ? .white : .secondary)
+                    .foregroundColor(isSelected ? .indigo : .secondary)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
+                    .frame(height: 34)
                     .background(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(isSelected
-                                  ? AnyShapeStyle(LinearGradient(
-                                        colors: [.indigo, .purple],
-                                        startPoint: .topLeading, endPoint: .bottomTrailing))
-                                  : AnyShapeStyle(Color.secondary.opacity(0.08)))
+                        Capsule()
+                            .fill(isSelected ? Color.indigo.opacity(0.12) : .clear)
                     )
                 }
                 .buttonStyle(.plain)
@@ -85,8 +84,7 @@ struct CustomTabBar: View {
             }
         }
         .padding(.horizontal, 12)
-        .padding(.top, 8)
-        .padding(.bottom, 4)
+        .padding(.vertical, 6)
         .background(.bar)
         .overlay(alignment: .top) {
             Divider()
