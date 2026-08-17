@@ -7,6 +7,7 @@ struct AgentProfile: Identifiable, Codable, Equatable {
     var color: String
     var systemPrompt: String
     var dataPolicy: DataPolicy
+    var temperature: Double
     var selectedModel: ModelSelection?
     var enabledTools: [String]
     var isCurrent: Bool
@@ -18,6 +19,7 @@ struct AgentProfile: Identifiable, Codable, Equatable {
         color: String,
         systemPrompt: String,
         dataPolicy: DataPolicy = .localFirst,
+        temperature: Double = 0.7,
         selectedModel: ModelSelection? = nil,
         enabledTools: [String] = [],
         isCurrent: Bool = false
@@ -28,6 +30,7 @@ struct AgentProfile: Identifiable, Codable, Equatable {
         self.color = color
         self.systemPrompt = systemPrompt
         self.dataPolicy = dataPolicy
+        self.temperature = temperature
         self.selectedModel = selectedModel
         self.enabledTools = enabledTools
         self.isCurrent = isCurrent

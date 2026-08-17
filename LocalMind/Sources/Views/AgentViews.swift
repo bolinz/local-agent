@@ -115,6 +115,7 @@ struct AgentDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var prompt: String
     @State private var policy: DataPolicy
+    @State private var temperature: Double
     @State private var selectedModel: ModelSelection?
     @State private var tools: [String]
 
@@ -123,6 +124,7 @@ struct AgentDetailView: View {
         self.onSave = onSave
         _prompt = State(initialValue: agent.systemPrompt)
         _policy = State(initialValue: agent.dataPolicy)
+        _temperature = State(initialValue: agent.temperature)
         _selectedModel = State(initialValue: agent.selectedModel)
         _tools = State(initialValue: agent.enabledTools)
     }
@@ -134,7 +136,7 @@ struct AgentDetailView: View {
                     TextField("System Prompt", text: $prompt, axis: .vertical)
                         .lineLimit(3...8)
                 }
-                Section("能力") {
+                Section {
                     ForEach(toolOptions(), id: \.self) { tool in
                         Toggle(toolLabel(tool), isOn: Binding(
                             get: { tools.contains(tool) },
@@ -144,11 +146,24 @@ struct AgentDetailView: View {
                             }
                         ))
                     }
+                } header: {
+                    Text("能力")
+                } footer: {
+                    Text("已启用 \(tools.count) / \(toolOptions().count) 个工具，Agent 仅能调用启用项")
+                        .font(.caption)
                 }
                 Section("隐私与推理") {
                     Picker("数据策略", selection: $policy) {
                         ForEach([DataPolicy.localFirst, .strictLocal, .allowCloud], id: \.self) { p in
                             Text(p.label).tag(p)
+                        }
+                    }
+                    Stepper(value: $temperature, in: 0.0...1.5, step: 0.1) {
+                        HStack {
+                            Text("Temperature")
+                            Spacer()
+                            Text(String(format: "%.1f", temperature))
+                                .foregroundColor(.secondary)
                         }
                     }
                     NavigationLink {
@@ -170,6 +185,7 @@ struct AgentDetailView: View {
                         var updated = agent
                         updated.systemPrompt = prompt
                         updated.dataPolicy = policy
+                        updated.temperature = temperature
                         updated.selectedModel = selectedModel
                         updated.enabledTools = tools
                         AgentStore.shared.upsert(updated)
@@ -262,6 +278,17 @@ struct AboutView: View {
                 Text("版本")
                 Spacer()
                 Text("1.2.0 (P1)").foregroundColor(.secondary)
+            }
+            if let url = URL(string: "https://github.com/bolinz/local-agent") {
+                Link(destination: url) {
+                    HStack {
+                        Text("开源仓库")
+                        Spacer()
+                        Image(systemName: "arrow.up.right")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
         }
         .navigationTitle("关于")

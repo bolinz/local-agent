@@ -25,9 +25,21 @@ struct QuickInputBar: View {
             Button(action: onSend) {
                 Image(systemName: "arrow.up")
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(text.isEmpty ? Color.disabledGray : .white)
+                    .foregroundColor(.white)
                     .frame(width: 32, height: 32)
-                    .background(text.isEmpty ? Color.inputFieldBackground : Color.accentColor)
+                    .background(
+                        Group {
+                            if text.isEmpty {
+                                Circle().fill(Color.disabledGray)
+                            } else {
+                                Circle().fill(
+                                    LinearGradient(colors: [.indigo, .purple, .pink],
+                                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                                )
+                            }
+                        }
+                    )
+                    .shadow(color: text.isEmpty ? .clear : Color.purple.opacity(0.4), radius: 6, y: 3)
                     .clipShape(Circle())
             }
             .accessibilityLabel("发送")

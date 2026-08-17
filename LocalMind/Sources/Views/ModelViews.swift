@@ -5,6 +5,8 @@ struct ModelListView: View {
     @State private var showAdd = false
     @State private var testResults: [UUID: Bool] = [:]
     @State private var testingID: UUID?
+    @State private var downloadedModels: [ModelType] = ModelManager.shared.getDownloadedModels()
+    @State private var downloadingID: String?
 
     var body: some View {
         List {
@@ -14,14 +16,32 @@ struct ModelListView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(model.displayName)
                                 .font(.subheadline)
-                            Text(String(format: "%.1f GB", model.sizeInGB))
+                            Text(String(format: "%.1f GB · %@", model.sizeInGB, downloadedModels.contains(model) ? "已下载" : "未下载"))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                         Spacer()
-                        Text("未下载")
+                        if downloadingID == model.rawValue {
+                            ProgressView().controlSize(.small)
+                        } else if downloadedModels.contains(model) {
+                            Button("删除") {
+                                try? ModelManager.shared.deleteModel(model)
+                                downloadedModels = ModelManager.shared.getDownloadedModels()
+                            }
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.red)
+                        } else {
+                            Button("下载") {
+                                downloadingID = model.rawValue
+                                Task {
+                                    try? await ModelManager.shared.downloadModel(model)
+                                    downloadedModels = ModelManager.shared.getDownloadedModels()
+                                    downloadingID = nil
+                                }
+                            }
+                            .font(.caption)
+                            .tint(.indigo)
+                        }
                     }
                 }
             }
@@ -75,6 +95,7 @@ struct ModelListView: View {
             }
         }
         .navigationTitle("模型管理")
+        .onAppear { downloadedModels = ModelManager.shared.getDownloadedModels() }
         .sheet(isPresented: $showAdd) {
             ProviderFormView { provider in
                 ModelConfigStore.shared.addProvider(provider)

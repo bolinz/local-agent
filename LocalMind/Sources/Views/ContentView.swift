@@ -129,6 +129,11 @@ struct WorkflowCardView: View {
                         .font(.caption2)
                     Text(workflow.trigger.label)
                         .font(.caption2)
+                    if !workflow.logs.isEmpty {
+                        Text("· 已运行 \(workflow.logs.count) 次")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                 }
                 .foregroundColor(.indigo)
             }

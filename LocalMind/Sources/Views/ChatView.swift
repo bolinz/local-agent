@@ -252,9 +252,12 @@ struct SessionListView: View {
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .lineLimit(1)
-                            Text(session.updatedAt.formatted(date: .abbreviated, time: .shortened))
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
+                            HStack(spacing: 8) {
+                                Text(session.updatedAt.formatted(date: .abbreviated, time: .shortened))
+                                Text("· \(session.messages.count) 条消息")
+                            }
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
                         }
                     }
                 }
