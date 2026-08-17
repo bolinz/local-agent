@@ -78,6 +78,7 @@ struct WorkflowListView: View {
                 }
                 .accessibilityLabel("新建工作流")
             }
+            #if canImport(UIKit)
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink {
                     WorkflowLogsView(engine: engine)
@@ -86,6 +87,16 @@ struct WorkflowListView: View {
                         .font(.caption)
                 }
             }
+            #else
+            ToolbarItem(placement: .automatic) {
+                NavigationLink {
+                    WorkflowLogsView(engine: engine)
+                } label: {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.caption)
+                }
+            }
+            #endif
         }
         .sheet(isPresented: $showCreateSheet) {
             WorkflowCreateSheet(engine: engine)
