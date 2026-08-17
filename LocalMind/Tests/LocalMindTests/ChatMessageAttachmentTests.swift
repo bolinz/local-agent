@@ -24,4 +24,13 @@ final class ChatMessageAttachmentTests: XCTestCase {
         XCTAssertEqual(decoded.attachments.count, 1)
         XCTAssertEqual(decoded.attachments.first?.type, .image)
     }
+
+    func testChatMessageDecodesOldJSONWithoutAttachments() throws {
+        let oldJSON = """
+        {"id":"\(UUID().uuidString)","role":"user","content":"旧消息","timestamp":\(Date().timeIntervalSince1970)}
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(ChatMessage.self, from: oldJSON)
+        XCTAssertEqual(decoded.content, "旧消息")
+        XCTAssertEqual(decoded.attachments, [])
+    }
 }
