@@ -51,7 +51,27 @@
 
 - **Agent 列表**：每个 Agent 一张渐变头像卡（当前态有选中标记），底部虚线"＋新建 Agent"卡
 - **Agent 详情**（点击进入）：角色设定（System Prompt 全文）/ 能力（工具开关+权限状态）/ 隐私与推理（数据策略/模型/Temperature）
-- **其他设置**：Skills / 模型管理 / 关于·开源
+- **模型管理**（独立入口，Agent 详情与设置页均可进入）：本地模型 + 外部 API 两级配置（见下节）
+- **其他设置**：Skills / 关于·开源
+
+### 模型管理
+
+支持两类模型来源，Agent 可各自选择运行时模型：
+
+**本地模型**（离线，隐私优先）
+- 列出 `ModelType` 全部模型（Qwen 2.5 3B / Llama 3.2 3B / Phi-3 Mini / Gemma 2 2B）
+- 每行显示：名称、体积、下载状态（已下载/未下载）、选择态
+- 操作：下载（沿用 ModelManager 模拟）、删除、选中为当前 Agent 的本地模型
+
+**外部 API 模型**（用户自带 API Key，可选云端路由）
+- **预设 provider 模板**：OpenAI / Anthropic / Gemini / DeepSeek 四类，选模板后填 API Key + 模型名即完成配置
+- **自定义 OpenAI 兼容**：手动填 baseURL + API Key + 模型名（兼容任意 OpenAI 协议端点，如本地 Ollama、代理等）
+- 每个已配置的 provider 显示为卡片：provider 名、模型名、连接状态（可"测试连接"）
+- 支持添加多个、删除、选中
+
+**模型选择交互**
+- Agent 详情页的"模型"行点击 → 模型选择页：分组展示「本地模型 / 外部 API」，单选
+- 本地模型为默认，外部 API 需用户主动配置 key 后才可选
 
 ### 历史会话
 
@@ -83,30 +103,36 @@
 - `AgentListView` / `AgentDetailView`：多 Agent 管理
 - `SessionListView`：历史会话列表
 - `GradientIconView`：渐变图标（工作流/模板/Agent 头像通用）
+- `ModelListView`：模型管理（本地模型列表 + 外部 API provider 列表）
+- `ProviderFormView`：外部 provider 配置表单（模板预填 / 自定义 OpenAI 兼容）
+- `ModelPickerView`：Agent 模型选择器（本地 / 外部分组单选）
 
 ## 数据层变更
 
 - `ChatService`：会话持久化（save/load sessions，按 ID）
 - `AgentStore`：从单条 `AgentConfig` 升级为多 Agent 存储（数组）
 - 新增模型：`ChatSession`（id/标题/时间/消息）
+- 新增 `ModelConfigStore`：外部 provider 配置持久化（数组：provider 名/baseURL/apiKey/模型名/来源模板）
+- 新增 `ModelRouter`：按 Agent 选择的路由（本地 ModelManager / 外部 API 请求，POC 阶段外部仅做连通性测试，不接真实推理）
 
 ## 不做的事
 
-- 不引入真实 MLX 推理/云端路由（维持 POC 模拟回复）
+- 不引入真实 MLX 推理/云端推理（维持 POC 模拟回复；外部 API 仅做连通性测试与配置，不接入真实对话生成）
 - 不改数据模型 `Workflow`/`ChatMessage` 核心结构
 - 不做多 Agent 真正的运行时隔离（仅配置层多份，运行时仍走单实例 ChatService）
+- 不做模型实际下载/加载（沿用 ModelManager 的模拟实现）
 
 ## 验证方式
 
-1. 单元测试：会话持久化读写、多 Agent 配置存取
-2. UI 测试（run-uitests.sh）：三个 Tab 渲染、空状态 chips、思考卡片、会话列表恢复
+1. 单元测试：会话持久化读写、多 Agent 配置存取、模型 provider 配置存取
+2. UI 测试（run-uitests.sh）：三个 Tab 渲染、空状态 chips、思考卡片、会话列表恢复、模型管理/选择流程
 3. 模拟器截图 + image-reader 校验视觉（无黑边、布局正确）
 
 ## 落地顺序
 
-1. 数据层：ChatSession + 会话持久化 + AgentStore 多 Agent
+1. 数据层：ChatSession + 会话持久化 + AgentStore 多 Agent + ModelConfigStore + ModelRouter
 2. 视觉组件：Orb / ThinkingCard / ToolCallCard / MemoryStrip / GlowPill / GradientIcon
 3. 对话页重写（空态 + 对话流 + 输入栏 + 历史入口）
 4. 工作流页重写（卡片化 + 新建入口）
-5. 设置页重写（Agent 管理）
+5. 设置页重写（Agent 管理 + 模型管理：本地列表 / provider 表单 / 模型选择器）
 6. 验证与收尾（测试 + 截图校验）
