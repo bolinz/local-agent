@@ -8,7 +8,9 @@ struct AgentListView: View {
         List {
             Section("我的 Agents") {
                 ForEach(agents) { agent in
-                    AgentRowView(agent: agent)
+                    AgentRowView(agent: agent) {
+                        agents = AgentStore.shared.loadAgents()
+                    }
                 }
                 .onDelete { indexSet in
                     for index in indexSet {
@@ -46,6 +48,7 @@ struct AgentListView: View {
 
 struct AgentRowView: View {
     let agent: AgentProfile
+    var onChange: () -> Void = {}
     @State private var showDetail = false
 
     var body: some View {
@@ -82,7 +85,17 @@ struct AgentRowView: View {
             }
         }
         .sheet(isPresented: $showDetail) {
-            AgentDetailView(agent: agent)
+            AgentDetailView(agent: agent) {
+                onChange()
+            }
+        }
+        .contextMenu {
+            if !agent.isCurrent {
+                Button("设为当前 Agent") {
+                    AgentStore.shared.setCurrent(agent.id)
+                    onChange()
+                }
+            }
         }
     }
 
@@ -98,14 +111,16 @@ struct AgentRowView: View {
 
 struct AgentDetailView: View {
     let agent: AgentProfile
+    var onSave: () -> Void = {}
     @Environment(\.dismiss) private var dismiss
     @State private var prompt: String
     @State private var policy: DataPolicy
     @State private var selectedModel: ModelSelection?
     @State private var tools: [String]
 
-    init(agent: AgentProfile) {
+    init(agent: AgentProfile, onSave: @escaping () -> Void = {}) {
         self.agent = agent
+        self.onSave = onSave
         _prompt = State(initialValue: agent.systemPrompt)
         _policy = State(initialValue: agent.dataPolicy)
         _selectedModel = State(initialValue: agent.selectedModel)
@@ -158,6 +173,7 @@ struct AgentDetailView: View {
                         updated.selectedModel = selectedModel
                         updated.enabledTools = tools
                         AgentStore.shared.upsert(updated)
+                        onSave()
                         dismiss()
                     }
                 }

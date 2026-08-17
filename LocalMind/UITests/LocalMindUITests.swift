@@ -109,8 +109,9 @@ final class LocalMindUITests: XCTestCase {
 
         app.tabBars.buttons["设置"].tap()
 
-        // 设置页关键区块渲染（Agent 配置 / Skills）
-        XCTAssertTrue(app.staticTexts["Agent 配置"].waitForExistence(timeout: 5), "Agent 配置 未出现")
+        // 设置页关键区块渲染（Agent 管理 / Skills 入口）
+        XCTAssertTrue(app.staticTexts["我的 Agents"].waitForExistence(timeout: 5), "我的 Agents 未出现")
+        XCTAssertTrue(app.staticTexts["LocalMind 通用助手"].waitForExistence(timeout: 5), "默认 Agent 未出现")
         let skills = app.staticTexts["Skills"]
         if !skills.exists {
             app.swipeUp()

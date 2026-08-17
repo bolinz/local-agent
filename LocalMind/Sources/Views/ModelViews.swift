@@ -3,6 +3,8 @@ import SwiftUI
 struct ModelListView: View {
     @State private var providers: [ModelProvider] = ModelConfigStore.shared.loadProviders()
     @State private var showAdd = false
+    @State private var testResults: [UUID: Bool] = [:]
+    @State private var testingID: UUID?
 
     var body: some View {
         List {
@@ -33,17 +35,27 @@ struct ModelListView: View {
                             Text("\(provider.modelName) · \(provider.baseURL)")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                        Button("测试") {
-                            Task {
-                                let ok = await ModelRouter().testConnection(provider)
-                                await MainActor.run {
-                                    // 简单反馈：可后续改为 alert
-                                }
+                            if let result = testResults[provider.id] {
+                                Text(result ? "连接成功" : "连接失败")
+                                    .font(.caption2)
+                                    .foregroundColor(result ? .green : .red)
                             }
                         }
-                        .font(.caption)
+                        Spacer()
+                        if testingID == provider.id {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Button("测试") {
+                                testingID = provider.id
+                                Task {
+                                    let ok = await ModelRouter().testConnection(provider)
+                                    testResults[provider.id] = ok
+                                    testingID = nil
+                                }
+                            }
+                            .font(.caption)
+                        }
                     }
                 }
                 .onDelete { indexSet in
