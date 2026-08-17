@@ -58,6 +58,8 @@ struct QuickInputBar: View {
                     #endif
                     .background(Color.inputFieldBackground)
                     .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .accessibilityLabel("输入消息...")
+                    .accessibilityIdentifier("输入消息...")
 
                 Button(action: send) {
                     Image(systemName: "arrow.up")
