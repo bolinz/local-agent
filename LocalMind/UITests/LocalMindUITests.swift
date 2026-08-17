@@ -19,20 +19,24 @@ final class LocalMindUITests: XCTestCase {
         let app = makeApp(reset: true)
         app.launch()
 
-        // 主界面三个 Tab 存在
-        XCTAssertTrue(app.tabBars.buttons["对话"].waitForExistence(timeout: 10))
-        XCTAssertTrue(app.tabBars.buttons["工作流"].exists)
-        XCTAssertTrue(app.tabBars.buttons["设置"].exists)
+        // 自定义 Tab 栏三个按钮存在
+        XCTAssertTrue(app.buttons["对话"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["工作流"].exists)
+        XCTAssertTrue(app.buttons["设置"].exists)
 
         // 输入框存在（对话页）
         XCTAssertTrue(app.textFields["输入消息..."].exists)
 
         // 切换到工作流页：模板库存在
-        app.tabBars.buttons["工作流"].tap()
+        app.buttons["工作流"].tap()
         XCTAssertTrue(app.staticTexts["模板库"].waitForExistence(timeout: 5))
 
+        // 切回对话页
+        app.buttons["对话"].tap()
+        XCTAssertTrue(app.textFields["输入消息..."].waitForExistence(timeout: 5))
+
         // 切换到设置页：Agent 管理存在
-        app.tabBars.buttons["设置"].tap()
+        app.buttons["设置"].tap()
         XCTAssertTrue(app.staticTexts["我的 Agents"].waitForExistence(timeout: 5))
 
         // 滚动到 Skills 区块
@@ -65,7 +69,7 @@ final class LocalMindUITests: XCTestCase {
         app.launch()
 
         // 进入工作流页
-        app.tabBars.buttons["工作流"].tap()
+        app.buttons["工作流"].tap()
         XCTAssertTrue(app.staticTexts["模板库"].waitForExistence(timeout: 5))
 
         // 模板卡直接带"导入"按钮（省钱管家）
@@ -87,7 +91,7 @@ final class LocalMindUITests: XCTestCase {
         let app = makeApp(reset: true)
         app.launch()
 
-        app.tabBars.buttons["工作流"].tap()
+        app.buttons["工作流"].tap()
         XCTAssertTrue(app.staticTexts["每日晨报"].waitForExistence(timeout: 5))
 
         // 找到并切换"每日晨报"的开关
@@ -101,7 +105,7 @@ final class LocalMindUITests: XCTestCase {
         let app = makeApp(reset: true)
         app.launch()
 
-        app.tabBars.buttons["设置"].tap()
+        app.buttons["设置"].tap()
 
         // 设置页关键区块渲染（Agent 管理 / Skills 入口）
         XCTAssertTrue(app.staticTexts["我的 Agents"].waitForExistence(timeout: 5), "我的 Agents 未出现")

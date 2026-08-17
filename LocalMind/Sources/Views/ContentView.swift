@@ -12,19 +12,16 @@ struct MainView: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                switch selectedTab {
-                case 0:
+                if selectedTab == 0 {
                     NavigationStack { ChatView() }
-                        .transition(.opacity)
-                case 1:
+                } else if selectedTab == 1 {
                     NavigationStack { WorkflowListView() }
-                        .transition(.opacity)
-                default:
+                } else {
                     NavigationStack { SettingsView() }
-                        .transition(.opacity)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .clipped()
             
             CustomTabBar(selected: $selectedTab)
         }
@@ -51,23 +48,21 @@ struct CustomTabBar: View {
             ForEach(tabItems) { item in
                 let isSelected = selected == item.id
                 Button {
-                    withAnimation(.spring(duration: 0.3)) {
+                    withAnimation(.spring(duration: 0.25)) {
                         selected = item.id
                     }
                 } label: {
-                    HStack(spacing: 5) {
+                    VStack(spacing: 3) {
                         Image(systemName: item.icon)
-                            .font(.system(size: 15, weight: isSelected ? .semibold : .regular))
-                            .symbolRenderingMode(isSelected ? .hierarchical : .monochrome)
-                        if isSelected {
-                            Text(item.title)
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                        }
+                            .font(.system(size: 17, weight: isSelected ? .semibold : .regular))
+                        Text(item.title)
+                            .font(.caption2)
+                            .fontWeight(isSelected ? .semibold : .regular)
                     }
                     .foregroundColor(isSelected ? .indigo : .secondary)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 34)
+                    .frame(height: 46)
+                    .contentShape(Rectangle())
                     .background(
                         Capsule()
                             .fill(isSelected ? Color.indigo.opacity(0.12) : .clear)
@@ -78,12 +73,13 @@ struct CustomTabBar: View {
                 .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
         .background(.bar)
         .overlay(alignment: .top) {
             Divider()
         }
+        .zIndex(1)
     }
 }
 
