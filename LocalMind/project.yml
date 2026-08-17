@@ -21,8 +21,6 @@ targets:
       CLANG_ENABLE_MODULES: YES
       DEVELOPMENT_TEAM: Q6ATCULYQR
       CODE_SIGN_STYLE: Automatic
-      PROVISIONING_PROFILE_SPECIFIER: ""
-      CODE_SIGN_IDENTITY: "Developer ID Application: bolin zhang (Q6ATCULYQR)"
     dependencies:
       - sdk: HealthKit.framework
       - sdk: EventKit.framework
@@ -42,6 +40,8 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_VERSION: "5.9"
         TEST_TARGET_NAME: LocalMind
+        DEVELOPMENT_TEAM: Q6ATCULYQR
+        CODE_SIGN_STYLE: Automatic
 
   LocalMindMac:
     type: application

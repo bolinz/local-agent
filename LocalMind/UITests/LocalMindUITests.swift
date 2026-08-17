@@ -31,9 +31,9 @@ final class LocalMindUITests: XCTestCase {
         app.tabBars.buttons["工作流"].tap()
         XCTAssertTrue(app.staticTexts["模板库"].waitForExistence(timeout: 5))
 
-        // 切换到设置页：Agent 配置存在
+        // 切换到设置页：Agent 管理存在
         app.tabBars.buttons["设置"].tap()
-        XCTAssertTrue(app.staticTexts["Agent 配置"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["我的 Agents"].waitForExistence(timeout: 5))
 
         // 滚动到 Skills 区块
         let skills = app.staticTexts["Skills"]
@@ -68,23 +68,17 @@ final class LocalMindUITests: XCTestCase {
         app.tabBars.buttons["工作流"].tap()
         XCTAssertTrue(app.staticTexts["模板库"].waitForExistence(timeout: 5))
 
-        // 滚动到模板库，进入"省钱管家"模板详情
+        // 模板卡直接带"导入"按钮（省钱管家）
         app.swipeUp()
-        let moneyButton = app.buttons["省钱管家"]
-        XCTAssertTrue(moneyButton.waitForExistence(timeout: 5))
-        moneyButton.tap()
-        XCTAssertTrue(app.staticTexts["包含的工作流"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["每月还款提醒"].waitForExistence(timeout: 5))
+        let importButtons = app.buttons.matching(identifier: "导入")
+        XCTAssertTrue(importButtons.firstMatch.waitForExistence(timeout: 5))
+        importButtons.firstMatch.tap()
 
-        // 导入
-        app.buttons["导入"].tap()
-
-        // 返回列表后滚回顶部，导入的工作流应出现在最上方
+        // 导入后返回列表顶部，导入的工作流出现在"我的自动任务"区
         for _ in 0..<5 {
             app.swipeDown()
             usleep(200_000)
         }
-        XCTAssertTrue(app.staticTexts["工作流"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["每月还款提醒"].waitForExistence(timeout: 5))
     }
 
@@ -109,8 +103,9 @@ final class LocalMindUITests: XCTestCase {
 
         app.tabBars.buttons["设置"].tap()
 
-        // 设置页关键区块渲染（Agent 配置 / Skills）
-        XCTAssertTrue(app.staticTexts["Agent 配置"].waitForExistence(timeout: 5), "Agent 配置 未出现")
+        // 设置页关键区块渲染（Agent 管理 / Skills 入口）
+        XCTAssertTrue(app.staticTexts["我的 Agents"].waitForExistence(timeout: 5), "我的 Agents 未出现")
+        XCTAssertTrue(app.staticTexts["LocalMind 通用助手"].waitForExistence(timeout: 5), "默认 Agent 未出现")
         let skills = app.staticTexts["Skills"]
         if !skills.exists {
             app.swipeUp()

@@ -28,12 +28,9 @@ class ModelManager {
         // 模拟下载延迟
         try await Task.sleep(nanoseconds: 2_000_000_000)
         
-        // 实际实现需要：
-        // 1. 从服务器下载模型文件
-        // 2. 验证文件完整性（checksum）
-        // 3. 解压到目标目录
-        
-        print("TODO: Download model \(model.displayName) to \(modelURL.path)")
+        // POC：创建占位文件标记"已下载"
+        try? fileManager.createDirectory(at: modelURL, withIntermediateDirectories: true)
+        try? "placeholder".data(using: .utf8)?.write(to: modelURL.appendingPathComponent("model.mlmodel"))
     }
     
     func loadModel(_ model: ModelType) async throws {

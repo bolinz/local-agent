@@ -35,119 +35,19 @@ struct MainView: View {
             }
             .tag(2)
         }
-    }
-}
-
-struct ChatView: View {
-    @State private var messages: [ChatMessage] = []
-    @State private var inputText = ""
-    @State private var isGenerating = false
-    
-    private let chatService = ChatService.shared
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            NetworkStatusView()
-            
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(messages) { message in
-                            ChatBubbleView(message: message)
-                        }
-                    }
-                    .padding()
-                }
-                .onChange(of: messages.count) { _, _ in
-                    if let last = messages.last {
-                        withAnimation {
-                            proxy.scrollTo(last.id, anchor: .bottom)
-                        }
-                    }
-                }
-            }
-            
-            Divider()
-            
-            if isGenerating {
-                ProgressView()
-                    .padding(.vertical, 8)
-            }
-            
-            QuickInputBar(
-                text: $inputText,
-                onSend: sendMessage
-            )
-        }
-        .navigationTitle("LocalMind")
-        .toolbar {
-            #if canImport(UIKit)
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: {
-                    messages.removeAll()
-                    chatService.clearHistory()
-                }) {
-                    Image(systemName: "trash")
-                        .foregroundColor(.red)
-                }
-            }
-            #else
-            ToolbarItem(placement: .automatic) {
-                Button(action: {
-                    messages.removeAll()
-                    chatService.clearHistory()
-                }) {
-                    Image(systemName: "trash")
-                        .foregroundColor(.red)
-                }
-            }
-            #endif
-        }
-        .onAppear {
-            // 加载历史消息
-            messages = chatService.getHistory()
-        }
-    }
-    
-    private func sendMessage() {
-        guard !inputText.isEmpty else { return }
-        
-        let userMessage = ChatMessage(
-            id: UUID(),
-            role: .user,
-            content: inputText,
-            timestamp: Date()
-        )
-        messages.append(userMessage)
-        inputText = ""
-        isGenerating = true
-        
-        Task {
-            do {
-                let response = try await chatService.sendMessage(userMessage.content)
-                messages.append(response)
-            } catch {
-                let errorMessage = ChatMessage(
-                    id: UUID(),
-                    role: .assistant,
-                    content: "抱歉，处理你的请求时出现错误：\(error.localizedDescription)",
-                    timestamp: Date()
-                )
-                messages.append(errorMessage)
-            }
-            isGenerating = false
-        }
+        .tint(.accentColor)
     }
 }
 
 struct WorkflowListView: View {
     @StateObject private var engine = ObservableWorkflowEngine(engine: WorkflowEngine.shared)
-    
+    @State private var showCreateSheet = false
+
     var body: some View {
         List {
             Section {
                 ForEach(engine.workflows) { workflow in
-                    WorkflowRow(workflow: workflow) { enabled in
+                    WorkflowCardView(workflow: workflow) { enabled in
                         engine.toggle(workflow, enabled: enabled)
                     }
                 }
@@ -156,30 +56,50 @@ struct WorkflowListView: View {
                         engine.delete(engine.workflows[index])
                     }
                 }
+            } header: {
+                Text("我的自动任务")
             }
-            
-            Section(header: Text("模板库")) {
-                NavigationLink("省钱管家") {
-                    TemplateDetailView(template: TemplateStore.sampleTemplates[0], engine: engine)
+
+            Section {
+                ForEach(Array(TemplateStore.sampleTemplates.enumerated()), id: \.element.id) { _, template in
+                    TemplateCardView(template: template, engine: engine)
                 }
-                NavigationLink("带娃神器") {
-                    TemplateDetailView(template: TemplateStore.sampleTemplates[1], engine: engine)
-                }
-                NavigationLink("长辈关怀") {
-                    TemplateDetailView(template: TemplateStore.sampleTemplates[2], engine: engine)
-                }
+            } header: {
+                Text("模板库")
             }
         }
-        .id(engine.workflows.map(\.id))
         .navigationTitle("工作流")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showCreateSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel("新建工作流")
+            }
+            #if canImport(UIKit)
+            ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink {
                     WorkflowLogsView(engine: engine)
                 } label: {
                     Image(systemName: "clock.arrow.circlepath")
+                        .font(.caption)
                 }
             }
+            #else
+            ToolbarItem(placement: .automatic) {
+                NavigationLink {
+                    WorkflowLogsView(engine: engine)
+                } label: {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.caption)
+                }
+            }
+            #endif
+        }
+        .sheet(isPresented: $showCreateSheet) {
+            WorkflowCreateSheet(engine: engine)
         }
         .onAppear {
             engine.reload()
@@ -187,100 +107,125 @@ struct WorkflowListView: View {
     }
 }
 
-struct SettingsView: View {
-    @State private var agentConfig: AgentConfig = AgentConfigStore.shared.load()
-    @State private var skills: [AgentSkill] = SkillStore.shared.loadSkills()
+struct WorkflowCardView: View {
+    let workflow: Workflow
+    let onToggle: (Bool) -> Void
 
     var body: some View {
-        Form {
-            Section(header: Text("Agent 配置")) {
-                TextField("System Prompt", text: $agentConfig.systemPrompt, axis: .vertical)
-                    .lineLimit(3...6)
-                    .accessibilityIdentifier("systemPromptField")
-                    .onChange(of: agentConfig) { _, newValue in
-                        AgentConfigStore.shared.save(newValue)
-                    }
-
-                Picker("数据策略", selection: $agentConfig.dataPolicy) {
-                    ForEach([DataPolicy.localFirst, .strictLocal, .allowCloud], id: \.self) { policy in
-                        Text(policy.label).tag(policy)
-                    }
-                }
-                .onChange(of: agentConfig.dataPolicy) { _, _ in
-                    AgentConfigStore.shared.save(agentConfig)
-                }
-
-                Stepper(value: $agentConfig.temperature, in: 0.0...1.5, step: 0.1) {
-                    Text("Temperature: \(agentConfig.temperature, specifier: "%.1f")")
-                }
-                .onChange(of: agentConfig.temperature) { _, _ in
-                    AgentConfigStore.shared.save(agentConfig)
-                }
-            }
-
-            Section(header: Text("AI大脑设置")) {
-                NavigationLink("选择 AI 大脑") {
-                    Text("模型选择")
-                        .navigationTitle("AI大脑")
-                }
-            }
-
-            Section(header: Text("Skills")) {
-                ForEach(skills) { skill in
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text(skill.name)
-                                .font(.headline)
-                            Spacer()
-                            Toggle("", isOn: Binding(
-                                get: { skill.enabled },
-                                set: { enabled in
-                                    SkillStore.shared.toggle(skill, enabled: enabled)
-                                    skills = SkillStore.shared.loadSkills()
-                                }
-                            ))
-                            .labelsHidden()
-                        }
-                        Text(skill.summary)
-                            .font(.caption)
+        HStack(spacing: 12) {
+            GradientIconView(icon: workflow.isEnabled ? "bolt.fill" : "bolt",
+                             gradient: workflow.isEnabled ? [.indigo, .purple] : [.gray, .gray],
+                             size: 38)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(workflow.name)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                Text(workflow.summary)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                HStack(spacing: 4) {
+                    Image(systemName: "clock")
+                        .font(.caption2)
+                    Text(workflow.trigger.label)
+                        .font(.caption2)
+                    if !workflow.logs.isEmpty {
+                        Text("· 已运行 \(workflow.logs.count) 次")
+                            .font(.caption2)
                             .foregroundColor(.secondary)
                     }
                 }
-                .onDelete { indexSet in
-                    for index in indexSet {
-                        SkillStore.shared.remove(skills[index])
-                    }
-                    skills = SkillStore.shared.loadSkills()
-                }
+                .foregroundColor(.indigo)
             }
-
-            Section(header: Text("隐私设置")) {
-                Toggle("完全离线模式", isOn: .constant(false))
-
-                NavigationLink("数据流向说明") {
-                    Text("数据流向")
-                        .navigationTitle("数据流向")
-                }
-            }
-
-            Section(header: Text("关于")) {
-                HStack {
-                    Text("版本")
-                    Spacer()
-                    Text("1.2.0 (P1)")
-                        .foregroundColor(.secondary)
-                }
-                NavigationLink("开源仓库") {
-                    Text("https://github.com/localmind/agent")
-                        .navigationTitle("开源仓库")
-                }
-            }
+            Spacer()
+            Toggle("", isOn: Binding(
+                get: { workflow.isEnabled },
+                set: { onToggle($0) }
+            ))
+            .labelsHidden()
+            .tint(.indigo)
         }
-        .navigationTitle("设置")
+        .padding(.vertical, 4)
     }
 }
 
-// Preview requires Xcode
-// #Preview {
-//     ContentView()
-// }
+struct TemplateCardView: View {
+    let template: WorkflowTemplate
+    var engine: ObservableWorkflowEngine?
+
+    var body: some View {
+        HStack(spacing: 12) {
+            GradientIconView(icon: template.icon,
+                             gradient: [.green, .teal], size: 38)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(template.name)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                Text(template.summary)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+            Spacer()
+            Button("导入") {
+                for workflow in template.workflows {
+                    if let engine {
+                        engine.createWorkflow(name: workflow.name, summary: workflow.summary,
+                                              trigger: workflow.trigger, steps: workflow.steps)
+                    } else {
+                        _ = WorkflowEngine.shared.createWorkflow(name: workflow.name, summary: workflow.summary,
+                                                                 trigger: workflow.trigger, steps: workflow.steps)
+                    }
+                }
+            }
+            .font(.caption)
+            .buttonStyle(.borderedProminent)
+            .tint(.indigo)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct WorkflowCreateSheet: View {
+    @ObservedObject var engine: ObservableWorkflowEngine
+    @Environment(\.dismiss) private var dismiss
+    @State private var name = ""
+    @State private var summary = ""
+    @State private var triggerText = "每天 8:00"
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                TextField("名称", text: $name)
+                TextField("描述", text: $summary)
+                TextField("触发（如：每天 8:00 / 每周一 9:00）", text: $triggerText)
+            }
+            .navigationTitle("新建工作流")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("创建") {
+                        let cron = triggerText.contains("每周") ? "0 9 * * 1"
+                            : triggerText.contains("每天") ? "0 8 * * *" : "0 9 * * *"
+                        engine.createWorkflow(
+                            name: name.isEmpty ? "未命名任务" : name,
+                            summary: summary.isEmpty ? name : summary,
+                            trigger: .time(cron),
+                            steps: [WorkflowStep(toolID: "notification", arguments: ["title": name.isEmpty ? "提醒" : name])]
+                        )
+                        dismiss()
+                    }
+                    .disabled(name.isEmpty)
+                }
+            }
+        }
+    }
+}
+
+struct SettingsView: View {
+    var body: some View {
+        AgentListView()
+    }
+}

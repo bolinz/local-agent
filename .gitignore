@@ -16,3 +16,7 @@ LocalMind.xcodeproj/
 *.app
 *.dSYM
 build/
+build-device/
+
+# 工具会话状态
+.superpowers/
