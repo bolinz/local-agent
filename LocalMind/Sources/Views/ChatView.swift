@@ -3,6 +3,7 @@ import SwiftUI
 struct ChatView: View {
     @State private var messages: [ChatMessage] = []
     @State private var inputText = ""
+    @State private var pendingAttachments: [MessageAttachment] = []
     @State private var isGenerating = false
     @State private var currentSessionID: UUID?
     @State private var showSessions = false
@@ -45,6 +46,11 @@ struct ChatView: View {
                             if message.role == .user {
                                 HStack { Spacer(); UserBubbleView(text: message.content) }
                                     .id(message.id)
+                                if !message.attachments.isEmpty {
+                                    ForEach(message.attachments) { att in
+                                        HStack { Spacer(); AttachmentBubbleView(attachment: att) }
+                                    }
+                                }
                             } else {
                                 HStack { assistantBubble(message); Spacer() }
                                     .id(message.id)
@@ -79,7 +85,9 @@ struct ChatView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 4)
 
-            QuickInputBar(text: $inputText, onSend: sendMessage)
+            QuickInputBar(text: $inputText, onSend: sendMessage) { att in
+                pendingAttachments.append(att)
+            }
         }
         .navigationTitle("LocalMind")
         #if canImport(UIKit)
@@ -201,10 +209,17 @@ struct ChatView: View {
     }
 
     private func sendMessage() {
-        guard !inputText.isEmpty else { return }
-        let userMessage = ChatMessage(id: UUID(), role: .user, content: inputText, timestamp: Date())
+        guard !inputText.isEmpty || !pendingAttachments.isEmpty else { return }
+        let userMessage = ChatMessage(
+            id: UUID(),
+            role: .user,
+            content: inputText,
+            timestamp: Date(),
+            attachments: pendingAttachments
+        )
         messages.append(userMessage)
         inputText = ""
+        pendingAttachments = []
         isGenerating = true
 
         Task {
