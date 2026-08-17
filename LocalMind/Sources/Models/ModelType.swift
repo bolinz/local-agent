@@ -1,6 +1,6 @@
 import Foundation
 
-enum ModelType: String, CaseIterable {
+enum ModelType: String, CaseIterable, Codable {
     case qwen2_5_3b = "qwen2.5-3b"
     case llama3_2_3b = "llama3.2-3b"
     case phi3_mini = "phi3-mini"
