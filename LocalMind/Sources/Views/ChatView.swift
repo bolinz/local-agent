@@ -7,6 +7,8 @@ struct ChatView: View {
     @State private var isGenerating = false
     @State private var currentSessionID: UUID?
     @State private var showSessions = false
+    @State private var agentID: UUID? = AgentStore.shared.currentAgent()?.id
+    @State private var modelSelection: ModelSelection?
 
     private let chatService = ChatService.shared
     private let sessionStore = SessionStore()
@@ -96,6 +98,10 @@ struct ChatView: View {
             MemoryStripView(items: memoryItems())
                 .padding(.horizontal, 16)
                 .padding(.bottom, 4)
+
+            AgentModelSwitcher(agentID: $agentID, modelSelection: $modelSelection)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 4)
 
             QuickInputBar(text: $inputText, onSend: sendMessage) { att in
                 pendingAttachments.append(att)
