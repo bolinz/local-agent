@@ -21,6 +21,16 @@ final class AgentStoreTests: XCTestCase {
         XCTAssertEqual(decoded.enabledTools, ["calendar", "reminder"])
     }
 
+    func testAgentProfileDecodesOldJSONWithoutTemperature() throws {
+        let oldJSON = """
+        {"id":"\(UUID().uuidString)","name":"旧数据","icon":"x","color":"blue",
+         "systemPrompt":"旧","dataPolicy":"localFirst","enabledTools":[],"isCurrent":true}
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(AgentProfile.self, from: oldJSON)
+        XCTAssertEqual(decoded.temperature, 0.7)
+        XCTAssertEqual(decoded.name, "旧数据")
+    }
+
     func testAgentStoreDefaultHasCurrentAgent() {
         let store = AgentStore()
         store.saveAgents([])
