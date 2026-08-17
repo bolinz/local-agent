@@ -116,4 +116,15 @@ final class LocalMindUITests: XCTestCase {
         }
         XCTAssertTrue(skills.waitForExistence(timeout: 3), "Skills 未出现")
     }
+
+    @MainActor
+    func testChatShowsAttachmentBubble() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-testAttachment", "-resetData"]
+        app.launch()
+
+        // 附件文件卡片应显示文件名
+        XCTAssertTrue(app.staticTexts["测试文件.txt"].waitForExistence(timeout: 10), "附件文件名未显示")
+        XCTAssertTrue(app.staticTexts["附件"].exists)
+    }
 }
