@@ -116,8 +116,9 @@ struct QuickInputBar: View {
         Task {
             if let data = try? await item.loadTransferable(type: Data.self) {
                 let name = "IMG_\(Int(Date().timeIntervalSince1970)).jpg"
-                let savedURL = AttachmentStore.shared.save(data: data, name: name)
-                pendingAttachments.append(MessageAttachment(type: .image, name: name, localURL: savedURL, mimeType: "image/jpeg"))
+                if let savedURL = AttachmentStore.shared.save(data: data, name: name) {
+                    pendingAttachments.append(MessageAttachment(type: .image, name: name, localURL: savedURL, mimeType: "image/jpeg"))
+                }
             }
             isLoadingAttachment = false
         }
@@ -129,7 +130,7 @@ struct QuickInputBar: View {
         defer { if accessing { url.stopAccessingSecurityScopedResource() } }
         guard let data = try? Data(contentsOf: url) else { return }
         let name = url.lastPathComponent
-        let savedURL = AttachmentStore.shared.save(data: data, name: name)
+        guard let savedURL = AttachmentStore.shared.save(data: data, name: name) else { return }
         pendingAttachments.append(MessageAttachment(type: .file, name: name, localURL: savedURL, mimeType: "application/octet-stream"))
     }
     #endif

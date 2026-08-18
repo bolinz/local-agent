@@ -39,39 +39,42 @@ final class AttachmentStoreTests: XCTestCase {
     func testSaveReturnsRelativePathWithAttachmentsPrefix() {
         let data = "test".data(using: .utf8)!
         let path = AttachmentStore.shared.save(data: data, name: "test.txt")
-        XCTAssertTrue(path.hasPrefix("Attachments/"))
-        XCTAssertTrue(path.contains("test.txt"))
+        XCTAssertNotNil(path)
+        XCTAssertTrue(path!.hasPrefix("Attachments/"))
+        XCTAssertTrue(path!.contains("test.txt"))
     }
 
     func testSaveSanitizesSpecialCharacters() {
         let data = "test".data(using: .utf8)!
         let path = AttachmentStore.shared.save(data: data, name: "a/b:c?d*e.txt")
-        // 应该包含 sanitized 版本：a_b_c_d_e.txt
-        XCTAssertTrue(path.contains("a_b_c_d_e.txt"))
-        XCTAssertFalse(path.contains("/b:") || path.hasSuffix("b:c?d*e.txt"))
+        XCTAssertNotNil(path)
+        XCTAssertTrue(path!.contains("a_b_c_d_e.txt"))
     }
 
     func testSaveSanitizesEmptyNameToFile() {
         let data = "test".data(using: .utf8)!
         let path = AttachmentStore.shared.save(data: data, name: "")
-        XCTAssertTrue(path.contains("file"))
+        XCTAssertNotNil(path)
+        XCTAssertTrue(path!.contains("file"))
     }
 
     func testSaveGeneratesUniqueFilenames() {
         let data = "test".data(using: .utf8)!
         let path1 = AttachmentStore.shared.save(data: data, name: "same.txt")
         let path2 = AttachmentStore.shared.save(data: data, name: "same.txt")
-        XCTAssertNotEqual(path1, path2, "Same name should produce unique paths")
+        XCTAssertNotNil(path1)
+        XCTAssertNotNil(path2)
+        XCTAssertNotEqual(path1!, path2!, "Same name should produce unique paths")
     }
 
     func testSaveCreatesFileOnDisk() {
         let data = "hello".data(using: .utf8)!
         let path = AttachmentStore.shared.save(data: data, name: "disk_test.txt")
-        let url = AttachmentStore.shared.fileURL(for: path)
+        XCTAssertNotNil(path)
+        let url = AttachmentStore.shared.fileURL(for: path!)
         XCTAssertNotNil(url)
         XCTAssertTrue(FileManager.default.fileExists(atPath: url!.path))
-        // cleanup
-        AttachmentStore.shared.delete(path)
+        AttachmentStore.shared.delete(path!)
         XCTAssertFalse(FileManager.default.fileExists(atPath: url!.path))
     }
 
