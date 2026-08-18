@@ -9,6 +9,7 @@ struct QuickInputBar: View {
     @State private var showImagePicker = false
     @State private var showFilePicker = false
     @State private var selectedPhoto: PhotosPickerItem?
+    @State private var isLoadingAttachment = false
 
     var body: some View {
         VStack(spacing: 6) {
@@ -80,7 +81,7 @@ struct QuickInputBar: View {
                         .clipShape(Circle())
                 }
                 .accessibilityLabel("发送")
-                .disabled(text.isEmpty && pendingAttachments.isEmpty)
+                .disabled(text.isEmpty && pendingAttachments.isEmpty || isLoadingAttachment)
             }
             .padding(.horizontal, 4)
         }
@@ -101,6 +102,7 @@ struct QuickInputBar: View {
 
     private func send() {
         guard !text.isEmpty || !pendingAttachments.isEmpty else { return }
+        guard !isLoadingAttachment else { return }
         for att in pendingAttachments {
             onAddAttachment?(att)
         }
@@ -110,12 +112,14 @@ struct QuickInputBar: View {
 
     #if canImport(UIKit)
     private func loadPhoto(_ item: PhotosPickerItem) {
+        isLoadingAttachment = true
         Task {
             if let data = try? await item.loadTransferable(type: Data.self) {
                 let name = "IMG_\(Int(Date().timeIntervalSince1970)).jpg"
                 let savedURL = AttachmentStore.shared.save(data: data, name: name)
                 pendingAttachments.append(MessageAttachment(type: .image, name: name, localURL: savedURL, mimeType: "image/jpeg"))
             }
+            isLoadingAttachment = false
         }
     }
 

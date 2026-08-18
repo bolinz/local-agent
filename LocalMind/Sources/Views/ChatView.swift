@@ -114,11 +114,11 @@ struct ChatView: View {
         .onAppear {
             if messages.isEmpty {
                 messages = chatService.getHistory()
-            }
-            if ProcessInfo.processInfo.arguments.contains("-testAttachment") {
-                let testAtt = MessageAttachment(type: .file, name: "测试文件.txt", localURL: "Attachments/测试文件.txt", mimeType: "text/plain")
-                let msg = ChatMessage(id: UUID(), role: .user, content: "请看这个附件", timestamp: Date(), attachments: [testAtt])
-                messages.append(msg)
+                if messages.isEmpty, ProcessInfo.processInfo.arguments.contains("-testAttachment") {
+                    let testAtt = MessageAttachment(type: .file, name: "测试文件.txt", localURL: "Attachments/测试文件.txt", mimeType: "text/plain")
+                    let msg = ChatMessage(id: UUID(), role: .user, content: "请看这个附件", timestamp: Date(), attachments: [testAtt])
+                    messages.append(msg)
+                }
             }
         }
     }
