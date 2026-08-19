@@ -115,7 +115,7 @@ struct QuickInputBar: View {
         isLoadingAttachment = true
         Task {
             if let data = try? await item.loadTransferable(type: Data.self) {
-                let name = "IMG_\(Int(Date().timeIntervalSince1970)).jpg"
+                let name = "IMG_\(UUID().uuidString.prefix(6)).jpg"
                 if let savedURL = AttachmentStore.shared.save(data: data, name: name) {
                     pendingAttachments.append(MessageAttachment(type: .image, name: name, localURL: savedURL, mimeType: "image/jpeg"))
                 }
@@ -128,6 +128,8 @@ struct QuickInputBar: View {
         guard case .success(let url) = result else { return }
         let accessing = url.startAccessingSecurityScopedResource()
         defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+        let fileSize = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize
+        guard (fileSize ?? 0) < 50_000_000 else { return } // 最大 50MB
         guard let data = try? Data(contentsOf: url) else { return }
         let name = url.lastPathComponent
         guard let savedURL = AttachmentStore.shared.save(data: data, name: name) else { return }

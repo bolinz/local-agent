@@ -225,9 +225,18 @@ struct ChatView: View {
     }
 
     private func startNewSession() {
+        clearAttachmentFiles()
         messages = []
         currentSessionID = nil
         isGenerating = false
+    }
+
+    private func clearAttachmentFiles() {
+        for msg in messages {
+            for att in msg.attachments {
+                AttachmentStore.shared.delete(att.localURL)
+            }
+        }
     }
 
     private func persistSession() {
@@ -274,7 +283,11 @@ struct SessionListView: View {
                 }
                 .onDelete { indexSet in
                     for index in indexSet {
-                        SessionStore().delete(sessions[index].id)
+                        let session = sessions[index]
+                        for att in session.messages.flatMap(\.attachments) {
+                            AttachmentStore.shared.delete(att.localURL)
+                        }
+                        SessionStore().delete(session.id)
                     }
                     sessions = SessionStore().load()
                 }

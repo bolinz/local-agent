@@ -123,8 +123,10 @@ final class LocalMindUITests: XCTestCase {
         app.launchArguments = ["-testAttachment", "-resetData"]
         app.launch()
 
-        // 附件文件卡片应显示文件名
-        XCTAssertTrue(app.staticTexts["测试文件.txt"].waitForExistence(timeout: 10), "附件文件名未显示")
-        XCTAssertTrue(app.staticTexts["附件"].exists)
+        // 等待附件消息出现，验证文件名和类型标签
+        let filename = app.staticTexts["测试文件.txt"]
+        XCTAssertTrue(filename.waitForExistence(timeout: 10), "附件文件名未显示")
+        let label = app.staticTexts["附件"]
+        XCTAssertTrue(label.exists, "附件类型标签未显示")
     }
 }
