@@ -32,7 +32,7 @@ struct QuickInputBar: View {
                     Button {
                         showImagePicker = true
                     } label: {
-                        Label("图片", systemImage: "photo")
+                        Label(NSLocalizedString("图片", comment: ""), systemImage: "photo")
                     }
                     Button {
                         showFilePicker = true
@@ -46,7 +46,7 @@ struct QuickInputBar: View {
                         .frame(width: 30, height: 30)
                         .background(Circle().fill(Color.indigo.opacity(0.1)))
                 }
-                .accessibilityLabel("添加附件")
+                .accessibilityLabel(NSLocalizedString("add_attachment", comment: ""))
                 #endif
 
                 TextEditor(text: $text)
