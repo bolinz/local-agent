@@ -5,6 +5,8 @@ struct ChatView: View {
     @State private var inputText = ""
     @State private var pendingAttachments: [MessageAttachment] = []
     @State private var isGenerating = false
+    @State private var isStreaming = false
+    @State private var streamingTexts: [UUID: String] = [:]
     @State private var currentSessionID: UUID?
     @State private var showSessions = false
     @State private var agentID: UUID? = AgentStore.shared.currentAgent()?.id
@@ -93,6 +95,15 @@ struct ChatView: View {
                 ])
                 .padding(.horizontal, 16)
                 .padding(.vertical, 6)
+            } else if isStreaming {
+                HStack(spacing: 6) {
+                    ProgressView()
+                        .scaleEffect(0.7)
+                    Text("输入中...")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.vertical, 6)
             }
 
             MemoryStripView(items: memoryItems())
@@ -176,14 +187,21 @@ struct ChatView: View {
                                  params: String(message.content.prefix(40)) + (message.content.count > 40 ? "…" : ""),
                                  result: "完成", isSuccess: true)
             }
-            Text(message.content)
-                .font(.body)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Color.secondary.opacity(0.1)))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            if let speed = message.speed {
+            HStack(alignment: .bottom, spacing: 2) {
+                Text(streamingTexts[message.id] ?? message.content)
+                    .font(.body)
+                if streamingTexts[message.id] != nil && streamingTexts[message.id]!.count < message.content.count {
+                    ProgressView()
+                        .scaleEffect(0.5)
+                        .frame(width: 8, height: 8)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color.secondary.opacity(0.1)))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            if let speed = message.speed, streamingTexts[message.id] == nil {
                 Text(String(format: "%.1f tok/s", speed))
                     .font(.caption2)
                     .foregroundColor(.secondary)
@@ -216,12 +234,35 @@ struct ChatView: View {
             do {
                 let response = try await chatService.sendMessage(userMessage.content)
                 messages.append(response)
+                isGenerating = false
+                await startStreaming(response)
             } catch {
                 messages.append(ChatMessage(id: UUID(), role: .assistant, content: "抱歉，处理你的请求时出现错误：\(error.localizedDescription)", timestamp: Date()))
+                isGenerating = false
             }
-            isGenerating = false
             persistSession()
         }
+    }
+
+    @MainActor
+    private func startStreaming(_ message: ChatMessage) async {
+        guard !message.content.isEmpty else { return }
+        isStreaming = true
+        streamingTexts[message.id] = ""
+        let fullText = message.content
+        let charsPerStep = fullText.count > 200 ? 3 : 2
+        let stepDelay: UInt64 = fullText.count > 200 ? 12_000_000 : 15_000_000
+        var index = 0
+        while index < fullText.count {
+            index += charsPerStep
+            let end = min(index, fullText.count)
+            let startIdx = fullText.index(fullText.startIndex, offsetBy: 0)
+            let endIdx = fullText.index(fullText.startIndex, offsetBy: end)
+            streamingTexts[message.id] = String(fullText[startIdx..<endIdx])
+            try? await Task.sleep(nanoseconds: stepDelay)
+        }
+        streamingTexts[message.id] = fullText
+        isStreaming = false
     }
 
     private func startNewSession() {
