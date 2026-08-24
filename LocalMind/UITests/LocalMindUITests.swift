@@ -24,8 +24,8 @@ final class LocalMindUITests: XCTestCase {
         XCTAssertTrue(app.buttons["工作流"].exists)
         XCTAssertTrue(app.buttons["设置"].exists)
 
-        // 输入框存在（对话页）
-        XCTAssertTrue(app.textFields["输入消息..."].exists)
+        // 输入框存在（对话页，多行 TextEditor）
+        XCTAssertTrue(app.textViews["输入消息..."].exists)
 
         // 切换到工作流页：模板库存在
         app.buttons["工作流"].tap()
@@ -33,7 +33,7 @@ final class LocalMindUITests: XCTestCase {
 
         // 切回对话页
         app.buttons["对话"].tap()
-        XCTAssertTrue(app.textFields["输入消息..."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.textViews["输入消息..."].waitForExistence(timeout: 5))
 
         // 切换到设置页：Agent 管理存在
         app.buttons["设置"].tap()
@@ -52,7 +52,7 @@ final class LocalMindUITests: XCTestCase {
         let app = makeApp(reset: true)
         app.launch()
 
-        let input = app.textFields["输入消息..."]
+        let input = app.textViews["输入消息..."]
         XCTAssertTrue(input.waitForExistence(timeout: 10))
         input.tap()
         input.typeText("hello")
@@ -115,5 +115,18 @@ final class LocalMindUITests: XCTestCase {
             app.swipeUp()
         }
         XCTAssertTrue(skills.waitForExistence(timeout: 3), "Skills 未出现")
+    }
+
+    @MainActor
+    func testChatShowsAttachmentBubble() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-testAttachment", "-resetData"]
+        app.launch()
+
+        // 等待附件消息出现，验证文件名和类型标签
+        let filename = app.staticTexts["测试文件.txt"]
+        XCTAssertTrue(filename.waitForExistence(timeout: 10), "附件文件名未显示")
+        let label = app.staticTexts["附件"]
+        XCTAssertTrue(label.exists, "附件类型标签未显示")
     }
 }

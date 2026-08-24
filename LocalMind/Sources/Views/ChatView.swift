@@ -3,16 +3,19 @@ import SwiftUI
 struct ChatView: View {
     @State private var messages: [ChatMessage] = []
     @State private var inputText = ""
+    @State private var pendingAttachments: [MessageAttachment] = []
     @State private var isGenerating = false
     @State private var currentSessionID: UUID?
     @State private var showSessions = false
+    @State private var agentID: UUID? = AgentStore.shared.currentAgent()?.id
+    @State private var modelSelection: ModelSelection?
 
     private let chatService = ChatService.shared
     private let sessionStore = SessionStore()
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 8) {
                 Button {
                     showSessions = true
                 } label: {
@@ -27,6 +30,18 @@ struct ChatView: View {
                         showSessions = false
                     }
                 }
+
+                Button(action: startNewSession) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: 26, height: 26)
+                        .background(
+                            Circle().fill(LinearGradient(colors: [.indigo, .purple],
+                                                         startPoint: .topLeading, endPoint: .bottomTrailing))
+                        )
+                }
+                .accessibilityLabel("新建会话")
 
                 Spacer()
 
@@ -45,6 +60,11 @@ struct ChatView: View {
                             if message.role == .user {
                                 HStack { Spacer(); UserBubbleView(text: message.content) }
                                     .id(message.id)
+                                if !message.attachments.isEmpty {
+                                    ForEach(message.attachments) { att in
+                                        HStack { Spacer(); AttachmentBubbleView(attachment: att) }
+                                    }
+                                }
                             } else {
                                 HStack { assistantBubble(message); Spacer() }
                                     .id(message.id)
@@ -79,48 +99,26 @@ struct ChatView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 4)
 
-            QuickInputBar(text: $inputText, onSend: sendMessage)
+            AgentModelSwitcher(agentID: $agentID, modelSelection: $modelSelection)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 4)
+
+            QuickInputBar(text: $inputText, onSend: sendMessage) { att in
+                pendingAttachments.append(att)
+            }
         }
         .navigationTitle("LocalMind")
         #if canImport(UIKit)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .toolbar {
-            #if canImport(UIKit)
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    if let sessionID = currentSessionID {
-                        sessionStore.delete(sessionID)
-                    }
-                    messages.removeAll()
-                    chatService.clearHistory()
-                    currentSessionID = nil
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .accessibilityLabel("清空对话")
-                }
-            }
-            #else
-            ToolbarItem(placement: .automatic) {
-                Button {
-                    if let sessionID = currentSessionID {
-                        sessionStore.delete(sessionID)
-                    }
-                    messages.removeAll()
-                    chatService.clearHistory()
-                    currentSessionID = nil
-                } label: {
-                    Image(systemName: "trash")
-                        .foregroundColor(.secondary)
-                }
-            }
-            #endif
-        }
         .onAppear {
             if messages.isEmpty {
                 messages = chatService.getHistory()
+                if messages.isEmpty, ProcessInfo.processInfo.arguments.contains("-testAttachment") {
+                    let testAtt = MessageAttachment(type: .file, name: "测试文件.txt", localURL: "Attachments/测试文件.txt", mimeType: "text/plain")
+                    let msg = ChatMessage(id: UUID(), role: .user, content: "请看这个附件", timestamp: Date(), attachments: [testAtt])
+                    messages.append(msg)
+                }
             }
         }
     }
@@ -201,10 +199,17 @@ struct ChatView: View {
     }
 
     private func sendMessage() {
-        guard !inputText.isEmpty else { return }
-        let userMessage = ChatMessage(id: UUID(), role: .user, content: inputText, timestamp: Date())
+        guard !inputText.isEmpty || !pendingAttachments.isEmpty else { return }
+        let userMessage = ChatMessage(
+            id: UUID(),
+            role: .user,
+            content: inputText,
+            timestamp: Date(),
+            attachments: pendingAttachments
+        )
         messages.append(userMessage)
         inputText = ""
+        pendingAttachments = []
         isGenerating = true
 
         Task {
@@ -216,6 +221,21 @@ struct ChatView: View {
             }
             isGenerating = false
             persistSession()
+        }
+    }
+
+    private func startNewSession() {
+        clearAttachmentFiles()
+        messages = []
+        currentSessionID = nil
+        isGenerating = false
+    }
+
+    private func clearAttachmentFiles() {
+        for msg in messages {
+            for att in msg.attachments {
+                AttachmentStore.shared.delete(att.localURL)
+            }
         }
     }
 
@@ -263,7 +283,11 @@ struct SessionListView: View {
                 }
                 .onDelete { indexSet in
                     for index in indexSet {
-                        SessionStore().delete(sessions[index].id)
+                        let session = sessions[index]
+                        for att in session.messages.flatMap(\.attachments) {
+                            AttachmentStore.shared.delete(att.localURL)
+                        }
+                        SessionStore().delete(session.id)
                     }
                     sessions = SessionStore().load()
                 }
