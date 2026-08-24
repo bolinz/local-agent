@@ -190,7 +190,7 @@ struct ChatView: View {
             HStack(alignment: .bottom, spacing: 2) {
                 Text(streamingTexts[message.id] ?? message.content)
                     .font(.body)
-                if streamingTexts[message.id] != nil && streamingTexts[message.id]!.count < message.content.count {
+                if let text = streamingTexts[message.id], text.count < message.content.count {
                     ProgressView()
                         .scaleEffect(0.5)
                         .frame(width: 8, height: 8)
@@ -218,6 +218,7 @@ struct ChatView: View {
 
     private func sendMessage() {
         guard !inputText.isEmpty || !pendingAttachments.isEmpty else { return }
+        guard !isGenerating && !isStreaming else { return }
         let userMessage = ChatMessage(
             id: UUID(),
             role: .user,
@@ -268,6 +269,8 @@ struct ChatView: View {
     private func startNewSession() {
         clearAttachmentFiles()
         messages = []
+        streamingTexts = [:]
+        isStreaming = false
         currentSessionID = nil
         isGenerating = false
     }
