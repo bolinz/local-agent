@@ -1,5 +1,19 @@
 import Foundation
 
+enum DataPolicy: String, Codable, Equatable {
+    case localFirst
+    case strictLocal
+    case allowCloud
+
+    var label: String {
+        switch self {
+        case .localFirst: return "本地优先"
+        case .strictLocal: return "严格本地"
+        case .allowCloud: return "允许云端"
+        }
+    }
+}
+
 struct AgentProfile: Identifiable, Codable, Equatable {
     let id: UUID
     var name: String

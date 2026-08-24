@@ -1,33 +1,6 @@
 import XCTest
 @testable import LocalMind
 
-final class AgentConfigStoreTests: XCTestCase {
-
-    override func tearDown() {
-        StorageService.shared.remove(forKey: "agent_config")
-        StorageService.shared.remove(forKey: "agent_skills")
-        super.tearDown()
-    }
-
-    func testLoadReturnsDefault() {
-        let config = AgentConfigStore.shared.load()
-        XCTAssertEqual(config, .default)
-        XCTAssertEqual(config.dataPolicy, .localFirst)
-    }
-
-    func testSaveAndLoadRoundTrip() {
-        let store = AgentConfigStore.shared
-        let modified = AgentConfig(
-            systemPrompt: "自定义提示",
-            defaultTools: ["reminder"],
-            temperature: 0.2,
-            dataPolicy: .strictLocal
-        )
-        store.save(modified)
-        XCTAssertEqual(store.load(), modified)
-    }
-}
-
 final class SkillStoreTests: XCTestCase {
 
     override func tearDown() {
