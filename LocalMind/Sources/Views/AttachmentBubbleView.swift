@@ -27,7 +27,7 @@ struct AttachmentBubbleView: View {
                     .font(.caption)
                     .fontWeight(.semibold)
                     .lineLimit(1)
-                Text("附件")
+                Text(NSLocalizedString("attachment", comment: ""))
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
@@ -68,7 +68,7 @@ private struct UIKitImageView: View {
                     .font(.caption)
                     .fontWeight(.semibold)
                     .lineLimit(1)
-                Text("附件")
+                Text(NSLocalizedString("attachment", comment: ""))
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }

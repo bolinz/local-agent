@@ -119,3 +119,81 @@
 "success_reminder_set" = "提醒已设置！";
 "success_health_data_loaded" = "健康数据已加载。";
 "success_home_device_controlled" = "智能家居设备已控制。";
+
+// MARK: - 对话页
+"local_running" = "本地运行";
+"new_session" = "新建会话";
+"history_sessions" = "历史会话";
+"no_history" = "暂无历史会话";
+"messages_count" = "%d 条消息";
+"empty_title" = "你的数据，你的设备，你的 AI";
+"empty_subtitle" = "用一句话让 LocalMind 帮你干活";
+"chip_create_reminder" = "创建提醒";
+"chip_summary_schedule" = "总结日程";
+"chip_medication_reminder" = "用药提醒";
+"chip_smart_home" = "控制家居";
+"input_message" = "输入消息...";
+"add_attachment" = "添加附件";
+"attachment" = "附件";
+"switch_agent" = "切换 Agent";
+"switch_model" = "切换模型";
+"select_agent" = "选择 Agent";
+"select_model" = "选择模型";
+"no_external_models" = "尚无外部模型，请先在模型管理中添加";
+"local_default" = "本地默认";
+
+// MARK: - Tab 栏
+"tab_chat" = "对话";
+"tab_workflows" = "工作流";
+"tab_settings" = "设置";
+
+// MARK: - 工作流
+"my_workflows" = "我的自动任务";
+"template_library" = "模板库";
+"new_workflow" = "新建工作流";
+"import" = "导入";
+"workflow_name" = "名称";
+"workflow_desc" = "描述";
+"workflow_trigger" = "触发";
+"workflow_create" = "创建";
+"workflow_cancel" = "取消";
+"workflow_unnamed" = "未命名任务";
+"workflow_logs" = "执行日志";
+
+// MARK: - Skills
+"skill_intro" = "简介";
+"skill_instructions" = "指令内容";
+"skill_required_tools" = "所需工具";
+"none" = "无";
+
+// MARK: - Agent 管理
+"my_agents" = "我的 Agents";
+"new_agent" = "新建 Agent";
+"agent_name" = "Agent 名称";
+"agent_prompt" = "System Prompt";
+"agent_color" = "颜色";
+"agent_save" = "保存";
+"agent_cancel" = "取消";
+"agent_create" = "创建";
+"agent_capabilities" = "能力";
+"agent_tools_enabled" = "已启用 %d / %d 个工具";
+"agent_data_policy" = "数据策略";
+"agent_model" = "模型";
+"agent_temperature" = "Temperature";
+"agent_role" = "角色设定";
+
+// MARK: - 模型管理
+"local_models" = "本地模型";
+"external_api" = "外部 API";
+"add_external_model" = "添加外部模型";
+"test_connection" = "测试";
+"connection_success" = "连接成功";
+"connection_failed" = "连接失败";
+"model_name" = "模型名";
+"base_url" = "Base URL";
+"api_key" = "API Key";
+"template" = "模板";
+
+// MARK: - 关于
+"version" = "版本";
+"open_source" = "开源仓库";

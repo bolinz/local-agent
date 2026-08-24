@@ -35,9 +35,9 @@ private struct TabItem: Identifiable {
 }
 
 private let tabItems: [TabItem] = [
-    TabItem(id: 0, title: "对话", icon: "message.fill"),
-    TabItem(id: 1, title: "工作流", icon: "flowchart.fill"),
-    TabItem(id: 2, title: "设置", icon: "gearshape.fill"),
+    TabItem(id: 0, title: NSLocalizedString("tab_chat", comment: ""), icon: "message.fill"),
+    TabItem(id: 1, title: NSLocalizedString("tab_workflows", comment: ""), icon: "flowchart.fill"),
+    TabItem(id: 2, title: NSLocalizedString("tab_settings", comment: ""), icon: "gearshape.fill"),
 ]
 
 struct CustomTabBar: View {
@@ -101,7 +101,7 @@ struct WorkflowListView: View {
                     }
                 }
             } header: {
-                Text("我的自动任务")
+                Text(NSLocalizedString("my_workflows", comment: ""))
             }
 
             Section {
@@ -109,10 +109,10 @@ struct WorkflowListView: View {
                     TemplateCardView(template: template, engine: engine)
                 }
             } header: {
-                Text("模板库")
+                Text(NSLocalizedString("template_library", comment: ""))
             }
         }
-        .navigationTitle("工作流")
+        .navigationTitle(NSLocalizedString("tab_workflows", comment: ""))
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {
@@ -120,7 +120,7 @@ struct WorkflowListView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
-                .accessibilityLabel("新建工作流")
+                .accessibilityLabel(NSLocalizedString("new_workflow", comment: ""))
             }
             #if canImport(UIKit)
             ToolbarItem(placement: .topBarTrailing) {
@@ -211,7 +211,7 @@ struct TemplateCardView: View {
                     .lineLimit(1)
             }
             Spacer()
-            Button("导入") {
+            Button(NSLocalizedString("import", comment: "")) {
                 for workflow in template.workflows {
                     if let engine {
                         engine.createWorkflow(name: workflow.name, summary: workflow.summary,
@@ -240,17 +240,17 @@ struct WorkflowCreateSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("名称", text: $name)
-                TextField("描述", text: $summary)
+                TextField(NSLocalizedString("workflow_name", comment: ""), text: $name)
+                TextField(NSLocalizedString("workflow_desc", comment: ""), text: $summary)
                 TextField("触发（如：每天 8:00 / 每周一 9:00）", text: $triggerText)
             }
-            .navigationTitle("新建工作流")
+            .navigationTitle(NSLocalizedString("new_workflow", comment: ""))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("取消") { dismiss() }
+                    Button(NSLocalizedString("workflow_cancel", comment: "")) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("创建") {
+                    Button(NSLocalizedString("workflow_create", comment: "")) {
                         let cron = triggerText.contains("每周") ? "0 9 * * 1"
                             : triggerText.contains("每天") ? "0 8 * * *" : "0 9 * * *"
                         engine.createWorkflow(

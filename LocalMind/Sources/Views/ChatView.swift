@@ -23,7 +23,7 @@ struct ChatView: View {
                         .font(.body)
                         .foregroundColor(.indigo)
                 }
-                .accessibilityLabel("历史会话")
+                .accessibilityLabel(NSLocalizedString("history_sessions", comment: ""))
                 .sheet(isPresented: $showSessions) {
                     SessionListView { session in
                         load(session: session)
@@ -41,11 +41,11 @@ struct ChatView: View {
                                                          startPoint: .topLeading, endPoint: .bottomTrailing))
                         )
                 }
-                .accessibilityLabel("新建会话")
+                .accessibilityLabel(NSLocalizedString("new_session", comment: ""))
 
                 Spacer()
 
-                GlowPillView(text: "本地运行")
+                GlowPillView(text: NSLocalizedString("local_running", comment: ""))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
@@ -136,20 +136,20 @@ struct ChatView: View {
                     .font(.system(size: 32, weight: .medium))
                     .foregroundColor(.white)
             }
-            Text("你的数据，你的设备，你的 AI")
+            Text(NSLocalizedString("empty_title", comment: ""))
                 .font(.title3)
                 .fontWeight(.bold)
-            Text("用一句话让 LocalMind 帮你干活")
+            Text(NSLocalizedString("empty_subtitle", comment: ""))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
             HStack(spacing: 8) {
-                chip("📅 创建提醒", "创建一个明天下午3点的会议提醒")
-                chip("📊 总结日程", "帮我总结本周的日程")
+                chip("📅 \(NSLocalizedString("chip_create_reminder", comment: ""))", "创建一个明天下午3点的会议提醒")
+                chip("📊 \(NSLocalizedString("chip_summary_schedule", comment: ""))", "帮我总结本周的日程")
             }
             HStack(spacing: 8) {
-                chip("💊 用药提醒", "每天8点提醒我吃药")
-                chip("🏠 控制家居", "晚上到家自动开灯")
+                chip("💊 \(NSLocalizedString("chip_medication_reminder", comment: ""))", "每天8点提醒我吃药")
+                chip("🏠 \(NSLocalizedString("chip_smart_home", comment: ""))", "晚上到家自动开灯")
             }
             Spacer()
         }
@@ -260,7 +260,7 @@ struct SessionListView: View {
         NavigationStack {
             List {
                 if sessions.isEmpty {
-                    Text("暂无历史会话")
+                    Text(NSLocalizedString("no_history", comment: ""))
                         .foregroundColor(.secondary)
                 }
                 ForEach(sessions) { session in
