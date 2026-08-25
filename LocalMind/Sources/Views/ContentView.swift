@@ -8,8 +8,21 @@ struct ContentView: View {
 
 struct MainView: View {
     @State private var selectedTab = 0
-    
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
     var body: some View {
+        #if canImport(UIKit)
+        if sizeClass == .regular {
+            iPadLayout
+        } else {
+            iPhoneLayout
+        }
+        #else
+        iPhoneLayout
+        #endif
+    }
+
+    private var iPhoneLayout: some View {
         VStack(spacing: 0) {
             ZStack {
                 if selectedTab == 0 {
@@ -22,8 +35,36 @@ struct MainView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .clipped()
-            
+
             CustomTabBar(selected: $selectedTab)
+        }
+    }
+
+    private var iPadLayout: some View {
+        NavigationSplitView {
+            List {
+                ForEach(tabItems) { item in
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedTab = item.id
+                        }
+                    } label: {
+                        Label(item.title, systemImage: item.icon)
+                            .tag(item.id)
+                    }
+                }
+            }
+            .navigationTitle("LocalMind")
+        } detail: {
+            Group {
+                if selectedTab == 0 {
+                    NavigationStack { ChatView() }
+                } else if selectedTab == 1 {
+                    NavigationStack { WorkflowListView() }
+                } else {
+                    NavigationStack { SettingsView() }
+                }
+            }
         }
     }
 }
