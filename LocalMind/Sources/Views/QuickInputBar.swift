@@ -13,9 +13,16 @@ struct QuickInputBar: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            if !pendingAttachments.isEmpty {
+            if !pendingAttachments.isEmpty || isLoadingAttachment {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
+                        if isLoadingAttachment {
+                            ProgressView()
+                                .scaleEffect(0.6)
+                            Text("加载中...")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
                         ForEach(pendingAttachments) { att in
                             AttachmentPreviewChip(attachment: att) {
                                 pendingAttachments.removeAll { $0.id == att.id }
