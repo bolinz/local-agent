@@ -57,7 +57,12 @@ class ChatService {
             return ("抱歉，调用工具时出现问题：\(error.localizedDescription)", nil)
         }
         
-        // 3. 兜底：模拟本地模型回复
+        // 3. 尝试云 API（如有配置）
+        if let cloudResponse = try? await callCloudAPI(input: input) {
+            return (cloudResponse, nil)
+        }
+        
+        // 4. 兜底：模拟本地模型回复
         if input.contains("健康") || input.contains("睡眠") {
             return ("✅ 已为你查询健康数据：\n- 今日步数：8,432步\n- 平均心率：72次/分钟\n- 昨晚睡眠：6.2小时", nil)
         } else if input.contains("天气") {
@@ -65,6 +70,24 @@ class ChatService {
         } else {
             return ("我理解你的需求。作为你的本地 AI 助手，我会在设备上为你处理这些任务。数据不会离开你的设备。", nil)
         }
+    }
+    
+    private func callCloudAPI(input: String) async throws -> String? {
+        // 获取当前选中的外部模型
+        guard let agent = AgentStore.shared.currentAgent(),
+              let modelSel = agent.selectedModel,
+              case .remote(let providerID) = modelSel else {
+            return nil
+        }
+        
+        let messages: [(role: String, content: String)] = conversationHistory.map {
+            (role: $0.role == .user ? "user" : "assistant", content: $0.content)
+        } + [("user", input)]
+        
+        return try await CloudAPIService.shared.generateCompletion(
+            messages: messages,
+            providerID: providerID
+        )
     }
     
     private func tryCreateWorkflow(from input: String) async throws -> String? {
