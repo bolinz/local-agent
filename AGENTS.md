@@ -40,3 +40,8 @@ cd LocalMind
 - 通用对话是唯一入口，Agent 通过 ToolRegistry 调用工具（含 WorkflowTool）
 - 测试用依赖注入：ChatService/WorkflowEngine/ToolRegistry 支持注入 mock
 - 逻辑层保持 SwiftPM 可测（UI 层依赖 Xcode 环境）
+- 云端 API 路由：CloudAPIService 封装 OpenAI 兼容调用，ChatService 按优先级：工具调用 → 云 API → mock 回复
+
+## 项目状态
+
+完整项目状态见 `docs/PROJECT_STATUS.md`（上下文压缩文档，含功能清单、设计决策、已知限制）。
