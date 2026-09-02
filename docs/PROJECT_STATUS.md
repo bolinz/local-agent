@@ -1,6 +1,6 @@
 # LocalMind 项目状态文档
 
-> 最后更新：2026-08-27
+> 最后更新：2026-09-02
 > 用途：上下文压缩——快速恢复项目全貌，供后续会话使用
 
 ---
@@ -69,12 +69,12 @@ LocalMind/
 │       ├── VisualComponents.swift  # 通用组件（渐变图标/气泡/记忆条）
 │       ├── ColorExtensions.swift   # 跨平台颜色扩展
 │       └── WorkflowDetailView.swift # 工作流详情/日志
-├── Tests/                           # 79 个单元测试
+├── Tests/                           # 85 个单元测试
 ├── UITests/                         # 6 个 UI 测试
 └── docs/                            # 设计文档 + backlog
 ```
 
-## 已完成功能（13 个 PR，main 分支）
+## 已完成功能（15 个 PR，main 分支）
 
 ### 核心功能
 | 功能 | 状态 | PR |
@@ -93,6 +93,8 @@ LocalMind/
 | Siri/Shortcuts 集成 | ✅ | #9 |
 | iPad 分屏适配（NavigationSplitView） | ✅ | #10 |
 | 云端 API 路由（MiMo 真实推理） | ✅ | #13 |
+| HealthKit 真实查询（步数/心率/睡眠） | ✅ | #15 |
+| Location 定位 + 反向地理编码 | ✅ | #15 |
 
 ### 修复与优化
 | 修复 | PR |
@@ -132,14 +134,14 @@ LocalMind/
 
 | 层 | 测试数 | 覆盖率 |
 |---|---|---|
-| 单元测试 | 79 | 逻辑层 90-100% |
+| 单元测试 | 85 | 逻辑层 90-100% |
 | UI 测试 | 6 | App 总体 39.69% |
 | 附件功能 | - | AttachmentBubbleView 59% / MessageAttachment 100% / AttachmentStore 100% |
 
 ## 配置与环境
 
 - **构建**：`xcodegen generate && xcodebuild -scheme LocalMind ... build`
-- **单元测试**：`swift test`（79 tests，macOS target）
+- **单元测试**：`swift test`（85 tests，macOS target）
 - **UI 测试**：`./run-uitests.sh`（iOS 26.4，规避 Xcode 26.5 挂起）
 - **实机安装**：`xcrun devicectl device install app --device <UDID> <app-path>`
 - **Xcode**：26.6，iOS 26.5 SDK，iOS 26.4 runtime（UI 测试）
@@ -152,7 +154,7 @@ LocalMind/
 | P3.1 MLX 本地推理 | 替换 mock 回复为真正本地 3B 模型推理 | 极高 |
 | P3.3 视觉记忆系统 | 跨会话上下文摘要 | 高 |
 | P3.4 MCP 支持 | 外部工具扩展 | 高 |
-| P3.5 HomeKit/HealthKit/Location | 系统框架集成 | 中 |
+| P3.5 HomeKit 集成 | 智能家居控制 | 中 |
 | P3.6 真实工作流调度 | BGTaskScheduler + 通知 | 中 |
 | P3.7 多 Agent 运行时隔离 | ChatService 重构为多实例 | 中 |
 | P3.8 插件系统 | 自定义 Skill 包导入 | 高 |
