@@ -5,6 +5,8 @@ enum ToolIntent: Equatable {
     case createReminder(title: String, date: Date?)
     case createEvent(title: String, date: Date?)
     case scheduleNotification(title: String, date: Date?)
+    case queryHealth(type: String)
+    case queryLocation
 
     var toolID: String? {
         switch self {
@@ -12,6 +14,8 @@ enum ToolIntent: Equatable {
         case .createReminder: return "reminder"
         case .createEvent: return "calendar"
         case .scheduleNotification: return "notification"
+        case .queryHealth: return "health"
+        case .queryLocation: return "location"
         }
     }
 }
@@ -37,6 +41,19 @@ struct IntentParser {
         // 通知：明确提到"通知"且带时间 → Notification
         if lowered.contains("通知") && date != nil {
             return .scheduleNotification(title: title, date: date)
+        }
+        // 健康：提到步数/心率/睡眠/健康 → Health
+        if lowered.contains("步数") || lowered.contains("步") || lowered.contains("心率") || lowered.contains("睡眠")
+            || lowered.contains("睡") || lowered.contains("健康") || lowered.contains("运动") {
+            if lowered.contains("步") { return .queryHealth(type: "steps") }
+            if lowered.contains("心率") || lowered.contains("心跳") { return .queryHealth(type: "heartRate") }
+            if lowered.contains("睡眠") || lowered.contains("睡") { return .queryHealth(type: "sleep") }
+            return .queryHealth(type: "all")
+        }
+        // 位置：提到位置/在哪/哪里/地址 → Location
+        if lowered.contains("位置") || lowered.contains("在哪") || lowered.contains("哪里")
+            || lowered.contains("地址") || lowered.contains("定位") {
+            return .queryLocation
         }
         return .none
     }

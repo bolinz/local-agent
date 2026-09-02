@@ -63,9 +63,7 @@ class ChatService {
         }
         
         // 4. 兜底：模拟本地模型回复
-        if input.contains("健康") || input.contains("睡眠") {
-            return ("✅ 已为你查询健康数据：\n- 今日步数：8,432步\n- 平均心率：72次/分钟\n- 昨晚睡眠：6.2小时", nil)
-        } else if input.contains("天气") {
+        if input.contains("天气") {
             return ("🌤 北京今天晴转多云，气温15-28°C，适合外出活动。", nil)
         } else {
             return ("我理解你的需求。作为你的本地 AI 助手，我会在设备上为你处理这些任务。数据不会离开你的设备。", nil)
@@ -163,6 +161,10 @@ class ChatService {
                 args["date"] = ISO8601DateFormatter().string(from: date)
             }
             return args
+        case .queryHealth(let type):
+            return ["type": type]
+        case .queryLocation:
+            return [:]
         }
     }
 }

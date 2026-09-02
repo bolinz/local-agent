@@ -93,4 +93,38 @@ final class IntentParserTests: XCTestCase {
         XCTAssertEqual(IntentParser.extractTitle(from: "周三上午10点预约牙医"), "牙医")
         XCTAssertEqual(IntentParser.extractTitle(from: "提醒我取快递"), "取快递")
     }
+
+    // MARK: - 健康意图
+
+    func testParseHealthSteps() {
+        let intent = IntentParser.parse("我今天走了多少步")
+        XCTAssertEqual(intent, .queryHealth(type: "steps"))
+    }
+
+    func testParseHealthHeartRate() {
+        let intent = IntentParser.parse("我现在心率多少")
+        XCTAssertEqual(intent, .queryHealth(type: "heartRate"))
+    }
+
+    func testParseHealthSleep() {
+        let intent = IntentParser.parse("昨晚睡了几个小时")
+        XCTAssertEqual(intent, .queryHealth(type: "sleep"))
+    }
+
+    func testParseHealthAll() {
+        let intent = IntentParser.parse("看看我的健康数据")
+        XCTAssertEqual(intent, .queryHealth(type: "all"))
+    }
+
+    // MARK: - 位置意图
+
+    func testParseLocation() {
+        XCTAssertEqual(IntentParser.parse("我现在在哪"), .queryLocation)
+        XCTAssertEqual(IntentParser.parse("我的位置"), .queryLocation)
+        XCTAssertEqual(IntentParser.parse("这里是什么地址"), .queryLocation)
+    }
+
+    func testParseLocationWithOtherWords() {
+        XCTAssertEqual(IntentParser.parse("帮我看看定位"), .queryLocation)
+    }
 }

@@ -10,6 +10,8 @@ class ToolRegistry {
         register(ReminderTool())
         register(NotificationTool())
         register(WorkflowTool())
+        register(HealthKitTool())
+        register(LocationTool())
     }
 
     func register(_ tool: Tool) {
