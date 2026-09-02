@@ -23,6 +23,7 @@ targets:
       DEVELOPMENT_TEAM: Q6ATCULYQR
       CODE_SIGN_STYLE: Automatic
       ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      CODE_SIGN_ENTITLEMENTS: LocalMind.entitlements
     dependencies:
       - sdk: HealthKit.framework
       - sdk: EventKit.framework

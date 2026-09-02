@@ -9,11 +9,13 @@ final class ToolRegistryTests: XCTestCase {
         XCTAssertNotNil(registry.tool(for: "reminder"))
         XCTAssertNotNil(registry.tool(for: "notification"))
         XCTAssertNotNil(registry.tool(for: "workflow"))
+        XCTAssertNotNil(registry.tool(for: "health"))
+        XCTAssertNotNil(registry.tool(for: "location"))
     }
 
     func testAllToolsCount() {
         let registry = ToolRegistry()
-        XCTAssertEqual(registry.allTools().count, 4)
+        XCTAssertEqual(registry.allTools().count, 6)
     }
 
     func testRegisterAndLookup() {
